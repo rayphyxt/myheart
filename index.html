@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>My Heart</title>
+
+<style type="text/css">
+@font-face {
+	font-family: digit;
+	src: url('digital-7_mono.ttf') format("truetype");
+}
+</style>
+
+<link href="css/default.css" type="text/css" rel="stylesheet">
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/garden.js"></script>
+<script type="text/javascript" src="js/functions.js"></script>
+
+</head>
+
+<body>
+
+<div id="mainDiv">
+	<div id="content">
+		<div id="code">
+			<span class="comments">/**</span><br />
+			<span class="space"/><span class="comments">*2015—02-13</span><br />
+			<span class="space"/><span class="comments">*/</span><br />
+			Boy name = <span class="keyword">Mr</span> YANG<br />
+			Girl name = <span class="keyword">Mrs</span> XU<br />
+			<span class="comments">// 有一个男孩真的很内向 </span><br />
+			The boy love the girl;<br />
+			<span class="comments">// 不善言表也不太具有幽默感</span><br />
+			The boy think the girl loved the boy;<br />
+			<span class="comments">// 但从第一刻和一个女孩对视的时候</span><br />
+			The boy can not be separated the girl;<br />
+			<span class="comments">// 他感觉自己已经坠入了爱情的深渊</span><br />
+			The boy think the girl can not be separated the boy;<br />
+			<span class="comments">// 她每次从他身旁路过</span><br />
+			<span class="comments">// 她的身影和气息始终让他无法忘却</span><br />
+			<span class="keyword">The boy</span> very <span class="keyword">happy</span>;<br />
+			<span class="keyword">The boy wish The girl</span> is also very <span class="keyword">happy</span>;<br />
+			<span class="placeholder"/><span class="comments">// 无论结局如何</span><br />
+			<span class="placeholder"/><span class="comments">// 无论在多远的将来</span><br />
+			<span class="placeholder"/>The boy has but one dream;<br />
+			<span class="comments">// 他都希望她曾经快乐过</span><br />
+			<br>
+			<br>
+			<span class="comments">// 他用最擅长的代码表达</span><br />
+			He want to say:<br />
+			'Baby, 虽然认识不久，但我真的<span class="keyword">喜欢上你</span>了。'<br />
+		</div>
+		<div id="loveHeart">
+			<canvas id="garden"></canvas>
+			<div id="words">
+				<div id="messages">
+					紫紫，这是从开始喜欢你的时光。
+					<div id="elapseClock"></div>
+				</div>
+				<div id="loveu">
+					情人节快乐，天天快乐。<br/>
+					<div class="signature">- 羊羊羊</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<audio autoplay>
+	<source src="mp3/wfyy.mp3" type="audio/mp3">
+	<source src="mp3/ib.mp3" type="audio/mp3">
+</audio>
+
+<script type="text/javascript">
+var offsetX = $("#loveHeart").width() / 2;
+var offsetY = $("#loveHeart").height() / 2 - 55;
+var together = new Date();
+together.setFullYear(2015, 1, 1);
+together.setHours(0);
+together.setMinutes(0);
+together.setSeconds(0);
+together.setMilliseconds(0);
+
+if (!document.createElement('canvas').getContext) {
+	var msg = document.createElement("div");
+	msg.id = "errorMsg";
+	msg.innerHTML = "Your browser doesn't support HTML5!<br/>Recommend use Chrome 14+/IE 9+/Firefox 7+/Safari 4+"; 
+	document.body.appendChild(msg);
+	$("#code").css("display", "none")
+	$("#copyright").css("position", "absolute");
+	$("#copyright").css("bottom", "10px");
+	document.execCommand("stop");
+} else {
+	setTimeout(function () {
+		startHeartAnimation();
+	}, 50000);
+
+	timeElapse(together);
+	setInterval(function () {
+		timeElapse(together);
+	}, 1000);
+
+	adjustCodePosition();
+	$("#code").typewriter();
+}
+</script>
+<div style="text-align:center;clear:both">
+<!--
+<p>适用浏览器：360、FireFox、Chrome、Safari、Opera、傲游、搜狗、世界之窗. 不支持IE8及以下浏览器。</p>
+<p>来源：<a href="http://sc.chinaz.com/" target="_blank">站长素材</a></p>
+-->
+</div>
+</body>
+</html>
