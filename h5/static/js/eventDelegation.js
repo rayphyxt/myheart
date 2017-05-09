@@ -472,8 +472,8 @@ window.Drag = {
 				$('#' + currentEleId).css({
 					width: sW - 20
 				});
-				$('.img', '#' + currentEleId).attr('src', '/img/default.jpg').removeAttr('imgsize');
-				$('.fm-img .editImg').css({backgroundImage: 'url(/img/default.jpg)'});
+				$('.img', '#' + currentEleId).attr('src', '../img/default.jpg').removeAttr('imgsize');
+				$('.fm-img .editImg').css({backgroundImage: 'url(../img/default.jpg)'});
 				$('.fm-img .replaceBtn').val('');
 			});
 		},
