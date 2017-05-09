@@ -1,0 +1,31 @@
+<div class="fm-img_group" rid="{{id}}">
+	<div class="fm-title">轮播图</div>
+	{% for img in imgs %}
+	{% set idx = loop.index %}
+	<div class="fm-row">
+		<div class="col-md-8">
+			{% if img.src %}
+			<div class="look_img"><img src="{{img.src}}"></div>
+			{% else %}
+			<div class="btn btn-block btn-info btn-file">
+				<span>图片{{idx}}</span>
+				<input data-idx="{{idx}}" class="add-replaceBtn" type="file" accept="image/png,image/jpeg,image/gif">
+			</div>
+			{% endif %}
+		</div>
+		<div class="col-md-4 text-right">
+			<a class="btn remove-btn" data-idx="{{idx}}">移除</a>
+		</div>
+	</div>
+	{% endfor %}
+	<div class="fm-row">
+		提示：<br />
+		1、轮播效果至少需要2张图哦^_^；<br />
+		<br />
+		2、建议图片尺寸为640x320；<br />
+		<br />
+		3、图片大小不能超过500K（支持格式：jpg、jpeg、png、gif）；<br />
+		<br />
+		4、为了更好匹配不同尺寸手机屏幕，请尽量不要在边缘处放置组图元素。
+	</div>
+</div>

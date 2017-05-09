@@ -1,0 +1,62 @@
+<div class="e-content">
+	{% for ele in element %}
+	<div class="e-form-block">
+		{% if ele.type === 'text' %}
+		<label class="e-form-label" style="{{style.label}}">{{ele.name || '文本框名称'}}{% if ele.must %}<b></b>{% endif %}</label>
+		<input class="e-form-input" maxlength="50" type="text" placeholder="请输入{{ele.name || '文本'}}" v-must="{{ele.must}}" v-rule="{{ele.check}}">
+		{% endif %}
+		{% if ele.type === 'select' %}
+		<label class="e-form-label" style="{{style.label}}">{{ele.name || '下拉框名称'}}</label>
+		<select class="e-form-select">
+			<option value="">请选择</option>
+			{% for opt in ele.options %}
+			<option value="{{opt.value}}">{{opt.value}}</option>
+			{% endfor %}
+		</select>
+		{% endif %}
+		{% if ele.type === 'radio' %}
+		<label class="e-form-label" style="{{style.label}}">{{ele.name || '筛选项名称'}}</label>
+		<div class="e-form-box">
+			{% if !ele.options.length %}
+			请添加选项
+			{% endif %}
+			{% set labelname = loop.index*2-1 %}
+			{% for opt in ele.options %}
+			<label>
+			<input class="e-form-input" type="radio" name="label_{{labelname}}" v-rule="{{ele.check}}" value="{{opt.value}}"{% if loop.first %} checked{% endif %}><span class="e-form-radiotxt" style="{{style.label}}">{{opt.value}}</span>
+			</label>
+			{% endfor %}
+		</div>
+		{% endif %}
+		{% if ele.type === 'number' %}
+		<div class="e-form-row count">
+			<div class="e-form-label e-form-wl e-form-gt" style="{{style.label}}">{{ele.numName || '数量'}}</div>
+			<div class="e-form-wr e-form-gt">
+				<input class="e-form-input e-num" type="number" min="1" value="1" placeholder="请输入{{ele.numName || '数量'}}" value="1">
+			</div>
+		</div>
+		<div class="e-form-row count">
+			<div class="e-form-label e-form-wl e-form-gt" style="{{style.label}}">{{ele.priceName || '单价'}}</div>
+			<div class="e-form-wr e-form-gt text-left spc" style="{{style.label}}">
+				<span class="e-form-price">{{ele.editPrice || 0}}</span>元
+			</div>
+		</div>
+		<div class="e-form-row">
+			<div class="e-form-label e-form-wl e-form-gt" style="{{style.label}}">{{ele.totalName || '总价'}}</div>
+			<div class="e-form-wr e-form-gt text-left spc" style="{{style.label}}">
+				<span class="e-form-total">xxx</span>元
+			</div>
+		</div>
+		{% endif %}
+		{% if ele.type === 'send' %}
+		<label class="e-form-label" style="{{style.label}}">{{ele.name || '送货方式'}}</label>
+		<div class="e-form-box">
+			<input class="e-form-input" type="radio" value="货到付款" checked /><span class="e-form-radiotxt" style="{{style.label}}">货到付款</span>
+		</div>
+		{% endif %}
+	</div>
+	{% endfor %}
+	<div class="e-form-block">
+		<a class="e-form-submit e-buy-form-submit" style="{{style.submit}}" mj-a="9" t-success="{{basic[2].value || '提交成功!'}}" t-url="{{basic[3].value || ''}}" t-name="{{basic[0].value || '表单'}}">{{basic[1].value || '提交'}}</a>
+	</div>
+</div>

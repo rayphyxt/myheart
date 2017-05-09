@@ -1,0 +1,15 @@
+<div class="img_group swiper-container">
+	{% if imgs.length %}
+	<div class="swiper-wrapper">
+		{% for img in imgs %}
+		{% if img.src %}
+			{% if img.href %}
+			<a href="{{img.href}}"><img class="swiper-slide" src="{{img.src}}" imgsize="{{img.size}}" /></a>
+			{% else %}
+			<img class="swiper-slide" src="{{img.src}}" imgsize="{{img.size}}" />
+			{% endif %}
+		{% endif %}
+		{% endfor %}
+	</div>
+	{% endif %}
+</div>
