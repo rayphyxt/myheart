@@ -350,7 +350,7 @@ footer {
   height: 100%;
 }
 .input-img_group {
-  background: url(/img/img_group.png) center no-repeat;
+  background: url(../img/default.jpg) center no-repeat;
   background-size: cover;
 }
 .input-img_group .img {

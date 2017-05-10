@@ -269,10 +269,7 @@ window.Drag = {
 		var moveFlag = false, moveEle, ox = oy = 0, pos;
 		var selectElement = function (dom, type) {
 			$('#page .drag-container').removeClass('active');
-			var dragDom = $(dom).parent().addClass('active');
-			/*if(type === 'img' || type === 'img_group') {
-				dragDom.css('z-index', 0);
-			}*/
+			$(dom).parent().addClass('active');
 			return dom;
 		}
 
