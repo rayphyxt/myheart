@@ -124,7 +124,7 @@ window.Drag = {
 				prepage.find('.p-page').trigger('click');
 				// me.setHeight();
 			} else {
-				alert('至多展示10个站点噢~');
+				$.alert('error', '至多展示10个站点噢~');
 			}
 		})
 		// 页面删除
@@ -142,7 +142,7 @@ window.Drag = {
 					eleReset(currentEleId);
 				}
 			} else {
-				alert('当前页不能删除');
+				$.alert('error', '当前页不能删除');
 			}
 		})
 		// 页面激活
@@ -234,7 +234,7 @@ window.Drag = {
 			currentEleType = $(dom).data('type');
 			// 已发布的站点中的已有表单不可编辑，但是可以删除，可以增加新的表单
 			if (status == 'RELEASE_ONLINE' && (currentEleType == 'form' || currentEleType == 'ebform') && $(dom).attr('fid')) {
-				alert('站点已发布，该表单不可编辑!');
+				$.alert('error', '站点已发布，该表单不可编辑!');
 				return;
 			}
 			if(currentEleType) {
@@ -521,7 +521,7 @@ window.Drag = {
 						}
 					}
 				} else {
-					alert('文件大小: '+(file.size/1000000).toFixed(1)+'MB, 图片太大啦 (*T_T*).');
+					$.alert('error', '文件大小: '+(file.size/1000000).toFixed(1)+'MB, 图片太大啦 (*T_T*).');
 					obj.val('');
 				}
 			}
@@ -1621,13 +1621,13 @@ window.Element = {
 		var me = this;
 		if (type === 'form' && $('.input-form', parent).length) {
 			$.isFunction(cb) && cb();
-			alert('每个单页面不能重复添加表单!');
+			$.alert('error', '每个单页面不能重复添加表单!');
 		} else if (type === 'ebform' && $('.input-ebform', parent).length) {
 			$.isFunction(cb) && cb();
-			alert('每个单页面不能重复添加电商表单!');
+			$.alert('error', '每个单页面不能重复添加电商表单!');
 		} else if (type === 'img_group' && $('.input-img_group', parent).length) {
 			$.isFunction(cb) && cb();
-			alert('组图不能重复创建!');
+			$.alert('error', '组图不能重复创建!');
 		} else {
 			me._load(me, type, function(tp) {
 				var ctn = document.createElement('div');
