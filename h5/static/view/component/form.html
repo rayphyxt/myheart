@@ -1,0 +1,176 @@
+<div class="fm-form" rid="{{id}}">
+	<div class="fm-title">表单</div>
+	<ul class="fm-nav nav nav-pills nav-justified">
+		<li class="active"><a class="e-tabs" href="#eContent">组件内容</a></li>
+		<li><a class="e-tabs" href="#eStype">组件样式</a></li> 
+	</ul>
+
+
+
+	<div class="tab-content">
+		<!-- 组件内容 -->
+		<div class="tab-pane fade active in" id="eContent">
+			<!-- 表单基础信息 -->
+			{% for ipt in basic %}
+			<div class="fm-row">
+				<div class="fm-labeltxt">{{ipt.name}}{% if ipt.must %}<b></b>{% endif %}</div>
+				<div>
+					{% if ipt.link %}
+					<select class="fm-control" name="{{ipt.key}}">
+						<option value="">不跳转</option>
+					</select>
+					{% else %}
+					<input class="fm-control" maxlength="{{ipt.max || 15}}" type="text" name="{{ipt.key}}" placeholder="{{ipt.name}}" value="{{ipt.value}}">
+					{% endif %}
+				</div>
+			</div>
+			{% endfor %}
+
+			
+			<!-- 表单元素 -->
+			<div id="fElement" class="fm-row">
+				{% if element.length %}<div class="fm-labeltxt">表单内容</div>{% endif %}
+				{% for ele in element %}
+				<div class="fm-block" index="{{loop.index}}">
+					<div class="form-title clearfix text-right">
+						<label class="pull-left">
+							{% if ele.type === 'text' %}文本框{% endif %}
+							{% if ele.type === 'select' %}下拉框{% endif %}
+							{% if ele.type === 'radio' %}筛选项{% endif %}
+						</label>
+						{% if !loop.first %}
+						<a class="btn-form-up" move="-1" title="上移"><i class="iconfont icon-up-triangle"></i></a>
+						{% endif %}
+
+						{% if !loop.last %}
+						<a class="btn-form-down" move="1" title="下移"><i class="iconfont icon-down-triangle"></i></a>
+						{% endif %}
+						<a class="btn-form-remove" title="移除"><i class="iconfont icon-close-2"></i></a>
+					</div>
+					{% if ele.type === 'text' %}
+					<div class="form-input">
+						<input class="fm-control e-form-name" maxlength="20" type="text" placeholder="文本框名称" value="{{ele.name}}">
+					</div>
+					<div class="row form-input">
+						<div class="col-md-5">
+							<div class="checkbox">
+								{% if ele.must %}
+								<label><input class="e-form-checkbox" type="checkbox" checked>必填</label>
+								{% else %}
+								<label><input class="e-form-checkbox" type="checkbox">必填</label>
+								{% endif %}
+							</div>
+						</div>
+						<div class="col-md-7">
+							<select class="e-form-rule fm-control">
+								<option>请选择</option>
+								{% if ele.check === 'fullname' %}<option value="fullname" selected>姓名</option>{% else %}<option value="fullname">姓名</option>{% endif %}
+								{% if ele.check === 'qq' %}<option value="qq" selected>QQ</option>{% else %}<option value="qq">QQ</option>{% endif %}
+								{% if ele.check === 'tel' %}<option value="tel" selected>联系方式</option>{% else %}<option value="tel">联系方式</option>{% endif %}
+								{% if ele.check === 'zipcode' %}<option value="zipcode" selected>邮政编码</option>{% else %}<option value="zipcode">邮政编码</option>{% endif %}
+								{% if ele.check === 'email' %}<option value="email" selected>邮箱</option>{% else %}<option value="email">邮箱</option>{% endif %}
+							</select>
+						</div>
+					</div>
+					{% endif %}
+					{% if ele.type === 'select' %}
+					<div class="form-input">
+						<input class="fm-control e-form-name" maxlength="20" type="text" placeholder="下拉框名称" value="{{ele.name}}">
+					</div>
+					{% for opt in ele.options %}
+					<div class="form-input">
+						<input class="fm-control e-form-select" maxlength="16" type="text" placeholder="选项名称" value="{{opt.value}}" index="{{loop.index}}">
+					</div>
+					{% endfor %}
+					<div class="form-input clearfix text-right">
+						<a class="btn-form-sel-add"><i class="iconfont icon-add-2"></i></a>
+						{% if ele.options.length %}
+						<a class="btn-form-sel-remove"><i class="iconfont icon-minus"></i></a>
+						{% endif %}
+					</div>
+					{% endif %}
+					{% if ele.type === 'radio' %}
+					<div class="form-input">
+						<input class="fm-control e-form-name" maxlength="20" type="text" placeholder="筛选项名称" value="{{ele.name}}">
+					</div>
+					{% for opt in ele.options %}
+					<div class="form-input">
+						<input class="fm-control e-form-radio" maxlength="16" type="text" placeholder="选项名称" value="{{opt.value}}" index="{{loop.index}}">
+					</div>
+					{% endfor %}
+					<div class="form-input clearfix text-right">
+						<a class="btn-form-sel-add"><i class="iconfont icon-add-2"></i></a>
+						{% if ele.options.length %}
+						<a class="btn-form-sel-remove"><i class="iconfont icon-minus"></i></a>
+						{% endif %}
+					</div>
+					{% endif %}
+				</div>
+				{% endfor %}
+			</div>
+
+			<!-- 添加按钮 -->
+			<div class="fm-row">
+				<div class="col-md-12 text-center">
+					<a class="btn btn-info btn-form-add e-tabs" href="#fAdd">添加表单行</a>
+				</div>
+			</div>
+
+			<div class="fm-row">
+				提示：<br />
+				1、为了更好匹配不同尺寸手机屏幕，请尽量不要在边缘处放置表单元素。
+			</div>
+		</div>
+		
+		<!-- 组件样式 -->
+		<div class="tab-pane fade" id="eStype">
+			<div class="row mb10">
+				<div class="fm-labeltxt">文字颜色设置：</div>
+				<div class="font flat" title="表单文字颜色">
+					<i class="iconfont icon-word-colour"></i>
+					<div id="lbcolor"></div>
+				</div>
+			</div>
+			<div class="row mb10">
+				<div class="fm-labeltxt">按钮颜色设置：</div>
+				<div class="font flat" title="按钮文字颜色">
+					<i class="iconfont icon-word-colour"></i>
+					<div id="ftcolor"></div>
+				</div>
+				<div class="font flat" title="按钮背景颜色">
+					<i class="iconfont icon-background-color"></i>
+					<div id="bgfill"></div>
+				</div>
+				<div class="font flat" title="按钮边框颜色">
+					<i class="iconfont icon-border-color"></i>
+					<div id="bdcolor"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 元素添加 -->
+		<div class="tab-pane fade" id="fAdd">
+			<div class="fm-row">
+				<div class="col-md-12">
+					<div class="radio">
+						<label><input type="radio" name="formType" value="text" checked>文本框</label>
+					</div>
+					<div class="radio">
+						<label><input type="radio" name="formType" value="select">下拉框</label>
+					</div>
+					<div class="radio">
+						<label><input type="radio" name="formType" value="radio">筛选项</label>
+					</div>
+				</div>
+			</div>
+			<div class="fm-row">
+				<div class="col-md-12 text-center">
+					<a id="formElementAdd" class="btn btn-info">确认</a>
+					<a class="btn btn-default e-tabs" href="#eContent">取消</a>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+</div>

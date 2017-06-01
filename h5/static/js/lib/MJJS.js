@@ -1,0 +1,1636 @@
+// ==================================================
+// ==== MJJS v0.0.1 ====
+// 基于jQuery v2.2.1，包括以下方法集合：
+// - JS原型方法扩展： String/Number/Array/Date
+// - jQuery方法扩展: $.browser/$.fn
+// - MJJS旧版保留方法: cookie
+// - MJJS方法库： core/json/page
+// ==================================================
+
+(function($, window, undefined) {
+	
+	if (!$) return;
+	if (!window.MJJS) window.MJJS = {};
+
+	/* String 原型方法扩展 */
+	(function() {
+		$.extend(String.prototype, {
+			_toBoolean: function() {
+				return (this.toString() === 'false' || this.toString() === '' || this.toString() === '0') ? false: true;
+			},
+			_toNumber: function() {
+				return (!isNaN(this)) ? Number(this) : this.toString();
+			},
+			_toRealValue: function() {
+				return (this.toString() === 'true' || this.toString() === 'false') ? this._toBoolean() : this._toNumber();
+			},
+			trim: function() {
+				return this.replace(/(^\s*)|(\s*$)/g, '');
+			},
+			ltrim: function() {
+				return this.replace(/(^\s*)/g, '');
+			},
+			rtrim: function() {
+				return this.replace(/(\s*$)/g, '');
+			},
+			trimAll: function() {
+				return this.replace(/\s/g, '');
+			},
+			trimNoteChar: function() {
+				return this.replace(/^[^\{]*\{\s*\/\*!?|\*\/[;|\s]*\}$/g, '').trim();
+			},
+			left: function(len) {
+				return this.substring(0, len);
+			},
+			right: function(len) {
+				return (this.length <= len) ? this.toString() : this.substring(this.length - len, this.length);
+			},
+			reverse: function() {
+				return this.split('').reverse().join('');
+			},
+			startWith: function(start, noCase) {
+				return !(noCase ? this.toLowerCase().indexOf(start.toLowerCase()) : this.indexOf(start));
+			},
+			endWith: function(end, noCase) {
+				return noCase ? (new RegExp(end.toLowerCase() + '$').test(this.toLowerCase().trim())) : (new RegExp(end + '$').test(this.trim()));
+			},
+			sliceAfter: function(str) {
+				return (this.indexOf(str) >= 0) ? this.substring(this.indexOf(str) + str.length, this.length) : '';
+			},
+			sliceBefore: function(str) {
+				return (this.indexOf(str) >= 0) ? this.substring(0, this.indexOf(str)) : '';
+			},
+			getByteLength: function() {
+				return this.replace(/[^\x00-\xff]/ig, 'xx').length;
+			},
+			subByte: function(len, s) {
+				if (len < 0 || this.getByteLength() <= len) {
+					return this.toString();
+				}
+				var str = this;
+				str = str.substr(0, len).replace(/([^\x00-\xff])/g,'\x241 ').substr(0, len).replace(/[^\x00-\xff]$/,'').replace(/([^\x00-\xff]) /g,'\x241');
+				return str + (s || '');
+			},
+			encodeURI: function(type) {
+				var etype = type || 'utf',
+					efn = (etype == 'uni') ? escape: encodeURIComponent;
+				return efn(this);
+			},
+			decodeURI: function(type) {
+				var dtype = type || 'utf',
+					dfn = (dtype == 'uni') ? unescape: decodeURIComponent;
+				try {
+					var os = this.toString(),
+						ns = dfn(os);
+					while (os != ns) {
+						os = ns;
+						ns = dfn(os);
+					}
+					return os;
+				} catch(e) {
+					// 备注： uni加密，再用utf解密的时候，会报错
+					return this.toString();
+				}
+			},
+			textToHtml: function() {
+				return this.replace(/</ig, '&lt;').replace(/>/ig, '&gt;').replace(/\r\n/ig, '<br>').replace(/\n/ig, '<br>');
+			},
+			htmlToText: function() {
+				return this.replace(/<br>/ig, '\r\n');
+			},
+			htmlEncode: function() {
+				var text = this,
+					re = {
+						'<': '&lt;',
+						'>': '&gt;',
+						'&': '&amp;',
+						'"': '&quot;'
+					};
+				for (var i in re) {
+					text = text.replace(new RegExp(i, 'g'), re[i]);
+				}
+				return text;
+			},
+			htmlDecode: function() {
+				var text = this,
+					re = {
+						'&lt;': '<',
+						'&gt;': '>',
+						'&amp;': '&',
+						'&quot;': '"'
+					};
+				for (var i in re) {
+					text = text.replace(new RegExp(i, 'g'), re[i]);
+				}
+				return text;
+			},
+			stripHtml: function() {
+				return this.replace(/(<\/?[^>\/]*)\/?>/ig, '');
+			},
+			stripScript: function() {
+				return this.replace(/<script(.|\n)*\/script>\s*/ig, '').replace(/on[a-z]*?\s*?=".*?"/ig, '');
+			},
+			replaceAll: function(os, ns) {
+				return this.replace(new RegExp(os, 'gm'), ns);
+			},
+			escapeReg: function() {
+				return this.replace(new RegExp("([.*+?^=!:\x24{}()|[\\]\/\\\\])", "g"), '\\\x241');
+			},
+			addQueryValue: function(name, value) {
+				var url = this.getPathName();
+				var param = this.getQueryJson();
+				if (!param[name]) param[name] = value;
+				return url + '?' + $.param(param);
+			},
+			getQueryValue: function(name) {
+				var reg = new RegExp("(^|&|\\?|#)" + name.escapeReg() + "=([^&]*)(&|\x24)", "");
+				var match = this.match(reg);
+				return (match) ? match[2] : '';
+			},
+			getQueryJson: function() {
+				if (this.indexOf('?') < 0) return {};
+				var query = this.substr(this.indexOf('?') + 1),
+					params = query.split('&'),
+					len = params.length,
+					result = {},
+					key,
+					value,
+					item,
+					param;
+				for (var i = 0; i < len; i++) {
+					param = params[i].split('=');
+					key = param[0];
+					value = param[1];
+					item = result[key];
+					if (undefined == typeof item) {
+						result[key] = value;
+					} else if (Object.prototype.toString.call(item) == '[object Array]') {
+						item.push(value);
+					} else {
+						result[key] = [item, value];
+					}
+				}
+				return result;
+			},
+			getDomain: function() {
+				if (this.startWith('http://')) return this.split('/')[2];
+				return '';
+			},
+			getPathName: function() {
+				return (this.lastIndexOf('?') == -1) ? this.toString() : this.substring(0, this.lastIndexOf('?'));
+			},
+			getFilePath: function() {
+				return this.substring(0, this.lastIndexOf('/') + 1);
+			},
+			getFileName: function() {
+				return this.substring(this.lastIndexOf('/') + 1);
+			},
+			getFileExt: function() {
+				return this.substring(this.lastIndexOf('.') + 1);
+			},
+			parseDate: function() {
+				return (new Date()).parse(this.toString());
+			},
+			parseJSON: function() {
+				return (new Function("return " + this.toString()))();
+			},
+			parseAttrJSON: function() {
+				var d = {},
+					a = this.toString().split(';');
+				for (var i = 0; i < a.length; i++) {
+					if (a[i].trim() === '' || a[i].indexOf(':') < 1) continue;
+					var item = a[i].sliceBefore(':').trim(),
+						val = a[i].sliceAfter(':').trim();
+					if (item !== '' && val !== '') d[item.toCamelCase()] = val._toRealValue();
+				}
+				return d;
+			},
+			_pad: function(width, ch, side) {
+				var str = [side ? '': this, side ? this: ''];
+				while (str[side].length < (width ? width: 0) && (str[side] = str[1] + (ch || ' ') + str[0]));
+				return str[side];
+			},
+			padLeft: function(width, ch) {
+				if (this.length >= width) return this.toString();
+				return this._pad(width, ch, 0);
+			},
+			padRight: function(width, ch) {
+				if (this.length >= width) return this.toString();
+				return this._pad(width, ch, 1);
+			},
+			toHalfWidth: function() {
+				return this.replace(/[\uFF01-\uFF5E]/g, function(c) {
+					return String.fromCharCode(c.charCodeAt(0) - 65248);
+				}).replace(/\u3000/g, " ");
+			},
+			toCamelCase: function() {
+				if (this.indexOf('-') < 0 && this.indexOf('_') < 0) {
+					return this.toString();
+				}
+				return this.replace(/[-_][^-_]/g, function(match) {
+					return match.charAt(1).toUpperCase();
+				});
+			},
+			format: function() {
+				var result = this;
+				if (arguments.length > 0) {
+					var parameters = (arguments.length == 1 && $.isArray(arguments[0])) ? arguments[0] : $.makeArray(arguments);
+					$.each(parameters, function(i, n) {
+						result = result.replace(new RegExp("\\{" + i + "\\}", "g"), n);
+					});
+				}
+				return result;
+			},
+			substitute: function(data) {
+				return data && typeof(data) == 'object'? this.replace(/\{([^{}]+)\}/g, function(match, key) {
+					var key = key.split('.'), value = data;
+					var len = key.length;
+					for (var i = 0; i < len; i++) {
+						value = value[key[i]];
+						if (!value) break;
+					}
+					return void 0 !== value ? '' + value : '';
+				}): this.toString();
+			}
+		});
+	})();
+
+	/* String 数据校验相关 */
+	(function() {
+		$.extend(String.prototype, {
+			isIP: function() {
+				var result = this.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+				if (!result) return false;
+				if (result[1] > 255 || result[2] > 255 || result[3] > 255 || result[4] > 255) return false;
+				return true;
+			},
+			isUrl: function() {
+				return (new RegExp(/^(ftp|https?):\/\/([^\s\.]+\.[^\s]{2,}|localhost)$/i).test(this.trim()));
+			},
+			isURL: function() {
+				return this.isUrl();
+			},
+			isDate: function() {
+				var result = this.match(/^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/);
+				if (result === null) return false;
+				var d = new Date(result[1], result[3] - 1, result[4]);
+				return (d.getFullYear() == result[1] && d.getMonth() + 1 == result[3] && d.getDate() == result[4]);
+			},
+			isTime: function() {
+				var result = this.match(/^(\d{1,2}):(\d{2}):(\d{2})$/);
+				if (!result) return false;
+				if (result[1] > 23 || result[2] > 59 || result[3] > 59) return false;
+				return true;
+			},
+			isDateTime: function() {
+				var result = this.match(/^(\d{4})[-|\/](\d{1,2})[-|\/](\d{1,2}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/);
+				if (!result) return false;
+				var date = new Date(result[1], result[2]-1, result[3], result[4], result[5], result[6]);
+				return date.getFullYear()==result[1] && date.getMonth()+1==result[2] && date.getDate()==result[3] && date.getHours()==result[4] && date.getMinutes()==result[5] && date.getSeconds()==result[6];
+			},
+			// 整数
+			isInteger: function() {
+				return (new RegExp(/^(-|\+)?\d+$/).test(this.trim()));
+			},
+			// 正整数
+			isPositiveInteger: function() {
+				return (new RegExp(/^\d+$/).test(this.trim())) && parseInt(this, 10) > 0;
+			},
+			// 负整数
+			isNegativeInteger: function() {
+				return (new RegExp(/^-\d+$/).test(this.trim()));
+			},
+			isNumber: function() {
+				return !isNaN(this);
+			},
+			isRealName: function() {
+				return (new RegExp(/^[A-Za-z \u4E00-\u9FA5]+$/).test(this));
+			},
+			isLogName: function() {
+				return (this.isEmail() || this.isMobile());
+			},
+			isEmail: function() {
+				return (new RegExp(/^([_a-zA-Z\d\-\.])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/).test(this.trim()));
+			},
+			isMobile: function() {
+				return (new RegExp(/^(13|14|15|17|18)\d{9}$/).test(this.trim()));
+			},
+			isPhone: function() {
+				return (new RegExp(/^(([0\+]\d{2,3}-)?(0\d{2,3})-)?(\d{7,8})(-(\d{3,}))?$/).test(this.trim()));
+			},
+			isAreacode: function() {
+				return (new RegExp(/^0\d{2,3}$/).test(this.trim()));
+			},
+			isPostcode: function() {
+				return (new RegExp(/^\d{6}$/).test(this.trim()));
+			},
+			isLetters: function() {
+				return (new RegExp(/^[A-Za-z]+$/).test(this.trim()));
+			},
+			isDigits: function() {
+				return (new RegExp(/^[1-9][0-9]+$/).test(this.trim()));
+			},
+			isAlphanumeric: function() {
+				return (new RegExp(/^[a-zA-Z0-9]+$/).test(this.trim()));
+			},
+			isValidString: function() {
+				return (new RegExp(/^[a-zA-Z0-9\s.\-_]+$/).test(this.trim()));
+			},
+			isLowerCase: function() {
+				return (new RegExp(/^[a-z]+$/).test(this.trim()));
+			},
+			isUpperCase: function() {
+				return (new RegExp(/^[A-Z]+$/).test(this.trim()));
+			},
+			isChinese: function() {
+				return (new RegExp(/^[\u4e00-\u9fa5]+$/).test(this.trim()));
+			},
+			isIDCard: function() {
+				//这里没有验证有效性，只验证了格式
+				var r15 = new RegExp(/^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$/);
+				var r18 = new RegExp(/^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X|x)$/);
+				return (r15.test(this.trim()) || r18.test(this.trim()));
+			}
+		});
+	})();
+
+	/* Number 原型方法扩展 */
+	(function() {
+		$.extend(Number.prototype, {
+			// 添加逗号分隔，返回为字符串
+			comma: function(length) {
+				if (!length || length < 1) length = 3;
+				var source = ('' + this).split('.');
+				source[0] = source[0].replace(new RegExp('(\\d)(?=(\\d{' + length + '})+$)', 'ig'), '$1,');
+				return source.join('.');
+			},
+			// 生成随机数
+			random: function(min, max) {
+				return Math.floor(Math.random() * (max - min + 1) + min);
+			}
+		});
+	})();
+
+	/* Array 原型方法扩展 */
+	(function() {
+		$.extend(Array.prototype, {
+			// 删除指定内容项
+			removeAt: function(idx) {
+				if (idx >= 0 && idx < this.length) {
+					for (var i = idx; i < this.length - 1; i++) {
+						this[i] = this[i + 1];
+					}
+					this.length--;
+				}
+			},
+			// 清除空字符串内容
+			removeEmpty: function() {
+				var arr = [];
+				for (var i = 0; i < this.length; i++) {
+					if (this[i].trim() !== '') {
+						arr.push(this[i].trim());
+					}
+				}
+				return arr;
+			},
+			// 添加内容，比push多一个检查相同内容部分
+			add: function(item) {
+				if (this.indexOf(item) > -1) {
+					return false;
+				} else {
+					this.push(item);
+					return true;
+				}
+			},
+			// 数组数据交换
+			swap: function(i, j) {
+				if (i < this.length && j < this.length && i != j) {
+					var item = this[i];
+					this[i] = this[j];
+					this[j] = item;
+				}
+			},
+			// 过滤重复数据
+			unique: function() {
+				var a = [],
+					o = {},
+					i,
+					v,
+					len = this.length;
+				if (len < 2) return this;
+				for (i = 0; i < len; i++) {
+					v = this[i];
+					if (o[v] !== 1) {
+						a.push(v);
+						o[v] = 1;
+					}
+				}
+				return a;
+			},
+			// JSON数组排序
+			// it: item name  dt: int, char  od: asc, desc
+			sortby: function(it, dt, od) {
+				var compareValues = function(v1, v2, dt, od) {
+					if (dt == 'int') {
+						v1 = parseInt(v1, 10);
+						v2 = parseInt(v2, 10);
+					} else if (dt == 'float') {
+						v1 = parseFloat(v1);
+						v2 = parseFloat(v2);
+					}
+					var ret = 0;
+					if (v1 < v2) ret = 1;
+					if (v1 > v2) ret = -1;
+					if (od == 'desc') {
+						ret = 0 - ret;
+					}
+					return ret;
+				};
+				var newdata = [];
+				for (var i = 0; i < this.length; i++) {
+					newdata[newdata.length] = this[i];
+				}
+				for (i = 0; i < newdata.length; i++) {
+					var minIdx = i;
+					var minData = (it !== '') ? newdata[i][it] : newdata[i];
+					for (var j = i + 1; j < newdata.length; j++) {
+						var tmpData = (it !== '') ? newdata[j][it] : newdata[j];
+						var cmp = compareValues(minData, tmpData, dt, od);
+						if (cmp < 0) {
+							minIdx = j;
+							minData = tmpData;
+						}
+					}
+					if (minIdx > i) {
+						var _child = newdata[minIdx];
+						newdata[minIdx] = newdata[i];
+						newdata[i] = _child;
+					}
+				}
+				return newdata;
+			}
+		});
+	})();
+
+	/* Date 原型方法扩展 */
+	(function() {
+		$.extend(Date.prototype, {
+			// 时间读取
+			parse: function(time) {
+				if (typeof(time) == 'string') {
+					if (time.indexOf('GMT') > 0 || time.indexOf('gmt') > 0 || !isNaN(Date.parse(time))) {
+						return this._parseGMT(time);
+					} else if (time.indexOf('UTC') > 0 || time.indexOf('utc') > 0 || time.indexOf(',') > 0) {
+						return this._parseUTC(time);
+					} else {
+						return this._parseCommon(time);
+					}
+				}
+				return new Date();
+			},
+			_parseGMT: function(time) {
+				this.setTime(Date.parse(time));
+				return this;
+			},
+			_parseUTC: function(time) {
+				return (new Date(time));
+			},
+			_parseCommon: function(time) {
+				var d = time.split(/ |T/),
+					d1 = d.length > 1 ? d[1].split(/[^\d]/) : [0, 0, 0],
+					d0 = d[0].split(/[^\d]/);
+				return new Date(d0[0] - 0, d0[1] - 1, d0[2] - 0, (d1[0]||0) - 0, (d1[1]||0) - 0, (d1[2]||0) - 0);
+			},
+			// 复制时间对象
+			clone: function() {
+				return new Date().setTime(this.getTime());
+			},
+			// 时间相加
+			dateAdd: function(type, val) {
+				var _y = this.getFullYear();
+				var _m = this.getMonth();
+				var _d = this.getDate();
+				var _h = this.getHours();
+				var _n = this.getMinutes();
+				var _s = this.getSeconds();
+				switch (type) {
+					case 'y':
+						this.setFullYear(_y + val);
+						break;
+					case 'm':
+						this.setMonth(_m + val);
+						break;
+					case 'd':
+						this.setDate(_d + val);
+						break;
+					case 'h':
+						this.setHours(_h + val);
+						break;
+					case 'n':
+						this.setMinutes(_n + val);
+						break;
+					case 's':
+						this.setSeconds(_s + val);
+						break;
+				}
+				return this;
+			},
+			// 时间相减
+			dateDiff: function(type, date2) {
+				var diff = date2 - this;
+				switch (type) {
+					case 'w':
+						return diff / 1000 / 3600 / 24 / 7;
+					case 'd':
+						return diff / 1000 / 3600 / 24;
+					case 'h':
+						return diff / 1000 / 3600;
+					case 'n':
+						return diff / 1000 / 60;
+					case 's':
+						return diff / 1000;
+				}
+			},
+			// 格式化为字符串输出
+			format: function(format) {
+				if (isNaN(this)) return '';
+				var o = {
+					'm+': this.getMonth() + 1,
+					'd+': this.getDate(),
+					'h+': this.getHours(),
+					'n+': this.getMinutes(),
+					's+': this.getSeconds(),
+					'S': this.getMilliseconds(),
+					'W': ['日', '一', '二', '三', '四', '五', '六'][this.getDay()],
+					'q+': Math.floor((this.getMonth() + 3) / 3)
+				};
+				if (format.indexOf('am/pm') >= 0) {
+					format = format.replace('am/pm', (o['h+'] >= 12) ? '下午': '上午');
+					if (o['h+'] >= 12) o['h+'] -= 12;
+				}
+				if (/(y+)/.test(format)) {
+					format = format.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length));
+				}
+				for (var k in o) {
+					if (new RegExp('('+ k +')').test(format)) {
+						format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length));
+					}
+				}
+				return format;
+			}
+		});
+	})();
+
+	/* jQuery方法扩展: $.browser/$.fn */
+	(function() {
+		// $.browser方法扩展
+		var ua = navigator.userAgent.toLowerCase();
+		if (!$.browser) $.browser = {};
+		$.extend($.browser, {
+			mobile: (/phone|pad|pod|ios|android|mobile|blackberry|iemobile|mqqbrowser|juc|fennec|wosbrowser|browserng|webos|symbian|windows phone/i).test(ua),
+			PC: !this.mobile,
+			IOS: (/iphone|ipad|ipod/i).test(ua),
+			iPad: (/ipad/i).test(ua),
+			iPod: (/ipod/i).test(ua),
+			iPhone: (/iphone/i).test(ua),
+			Android: (/android/i).test(ua),
+			isWechat: (/micromessenger/i).test(ua),
+			language: function() {
+				return (navigator.language || navigator.userLanguage || '').toLowerCase();
+			}
+		});
+		// ----------------------------
+		// 获取tagName
+		$.fn.tagName = function() {
+			if (!this.length) return '';
+			if (this.length > 1) {
+				var tagNames = [];
+				this.each(function(i, el) {
+					tagNames.push(el.tagName.toLowerCase());
+				});
+				return tagNames;
+			} else {
+				return this[0].tagName.toLowerCase();
+			}
+		};
+		// 获取select的文本
+		$.fn.optionText = function() {
+			if (this.length === 0) return '';
+			var sel = this[0];
+			if (sel.selectedIndex === -1) return '';
+			return sel.options[sel.selectedIndex].text;
+		};
+		// 获取element属性的JSON值
+		$.fn.attrJSON = function(attr) {
+			return (this.attr(attr || 'data-opts') || '').parseAttrJSON();
+		};
+		// 生成随机数
+		$.randomInt = function(min, max) {
+			return Math.floor(Math.random() * (max - min + 1) + min);
+		};
+	})();
+
+	/* MJJS core: namespace/define/load */
+	(function() {
+		// ----------------------------
+		// MJJS.namespace 命名空间
+		MJJS.namespace = function(name, sep) {
+			var s = name.split(sep || '.'),
+				d = {},
+				o = function(a, b, c) {
+					if (c < b.length) {
+						if (!a[b[c]]) {
+							a[b[c]] = {};
+						}
+						d = a[b[c]];
+						o(a[b[c]], b, c + 1);
+					}
+				};
+			o(window, s, 0);
+			return d;
+		};
+		// ----------------------------
+		// 模块方法定义，其中callback为定义后需要附加执行的处理
+		MJJS.define = function(name, value, callback) {
+			var obj = this,
+				item = name;
+			if (name.indexOf('.') > 0) {
+				var a = name.split('.');
+				item = a.pop();
+				var source = a.join('.');
+				obj = MJJS.namespace(source);
+			}
+			if (obj[item]) return;
+			obj[item] = value;
+			if (callback) callback();
+		};
+		// ----------------------------
+		// MJJS.load/MJJS.loader 加载管理
+		MJJS.load = function(service, action, params) {
+			if ($.isArray(service)) {
+				var url = service.join(',');
+				var urlsize = service.length;
+				var status = MJJS.loader.checkFileLoader(url);
+				if (status == urlsize + 1) {
+					if (typeof(action) == 'function') action();
+				} else if (status > 0) {
+					MJJS.loader.addExecute(url, action);
+				} else if (status === 0) {
+					MJJS.loader.addExecute(url, action);
+					MJJS.loader.fileLoader[url] = 1;
+					for (var i = 0; i < urlsize; i++) {
+						MJJS.load(service[i], function() {
+							MJJS.loader.fileLoader[url]++;
+							if (MJJS.loader.fileLoader[url] == urlsize + 1) {
+								MJJS.loader.execute(url);
+							}
+						});
+					}
+				}
+			} else if (MJJS.loader.serviceLibs[service] && MJJS.loader.serviceLibs[service].requires) {
+				MJJS.load(MJJS.loader.serviceLibs[service].requires, function() {
+					MJJS.load.run(service, action, params);
+				});
+			} else {
+				MJJS.load.run(service, action, params);
+			}
+		};
+		$.extend(MJJS.load, {
+			setPath: function(path) {
+				MJJS.loader.serviceBase = path;
+			},
+			add: function(key, data) {
+				if (MJJS.loader.serviceLibs[key]) return;
+				if (data.js && (!data.js.startWith('http')) && this.version) {
+					data.js = data.js.addQueryValue('v', this.version);
+				}
+				if (data.css && (!data.css.startWith('http')) && this.version) {
+					data.css = data.css.addQueryValue('v', this.version);
+				}
+				MJJS.loader.serviceLibs[key] = data;
+			},
+			run: function(service, act, params) {
+				var action = (typeof(act) == 'string') ? (function() {
+					try {
+						var o = eval('MJJS.' + service);
+						if (o && o[act]) o[act](params);
+					} catch(e) {}
+				}) : (act || function() {});
+				if (MJJS.loader.checkService(service)) {
+					action();
+					return;
+				}
+				var url = MJJS.loader.getServiceUrl(service);
+				var status = MJJS.loader.checkFileLoader(url);
+				// status:-1异常, 0未加载, 1开始加载, 2完成加载
+				if (status === 2) {
+					action();
+				} else if (status === 1) {
+					MJJS.loader.addExecute(url, action);
+				} else if (status === 0) {
+					if ($('script[src="' + url + '"]').length > 0) {
+						MJJS.loader.fileLoader[url] = 2;
+						action();
+					} else {
+						MJJS.loader.addExecute(url, action);
+						MJJS.loader.addScript(service);
+					}
+				}
+			}
+		});
+		// ----------------------------
+		MJJS.define('MJJS.loader', {
+			fileLoader: {},
+			executeLoader: {},
+			serviceBase: (function() {
+				return $('script:last').attr('src').sliceBefore('/j/') + '/';
+			})(),
+			serviceLibs: {},
+			checkFullUrl: function(url) {
+				return (url.indexOf('/') === 0 || url.indexOf('http://') === 0);
+			},
+			checkService: function(service) {
+				if (this.checkFullUrl(service)) return false;
+				try {
+					if (service.indexOf('.') > 0) {
+						var o = eval('MJJS.' + service);
+						return (typeof(o) != undefined);
+					}
+					return false;
+				} catch(e) {
+					return false;
+				}
+			},
+			checkFileLoader: function(url) {
+				return url !== ''? (this.fileLoader[url] || 0): -1;
+			},
+			getServiceUrl: function(service) {
+				var url = '';
+				if (this.checkFullUrl(service)) {
+					url = service;
+				} else if (this.serviceLibs[service]) {
+					url = (this.checkFullUrl(this.serviceLibs[service].js)) ? this.serviceLibs[service].js : (this.serviceBase + this.serviceLibs[service].js);
+				}
+				return url;
+			},
+			execute: function(url) {
+				if (this.executeLoader[url]) {
+					for (var i = 0; i < this.executeLoader[url].length; i++) {
+						this.executeLoader[url][i]();
+					}
+					this.executeLoader[url] = null;
+				}
+			},
+			addExecute: function(url, action) {
+				if (typeof(action) != 'function') return;
+				if (!this.executeLoader[url]) this.executeLoader[url] = [];
+				this.executeLoader[url].push(action);
+			},
+			addScript: function(service) {
+				var this_ = this, url;
+				if (this.checkFullUrl(service)) {
+					url = service;
+					this.getScript(url, function() {
+						this_.fileLoader[url] = 2;
+						MJJS.loader.execute(url);
+					});
+				} else if (this.serviceLibs[service]) {
+					if (this.serviceLibs[service].css) {
+						url = (this.checkFullUrl(this.serviceLibs[service].css)) ? this.serviceLibs[service].css: (this.serviceBase + this.serviceLibs[service].css);
+						if (!this.fileLoader[url]) {
+							this.fileLoader[url] = 1;
+							$('head').append('<link rel="stylesheet" type="text\/css"  href="' + url + '" \/>');
+						}
+					}
+					if (this.serviceLibs[service].js) {
+						url = (this.checkFullUrl(this.serviceLibs[service].js)) ? this.serviceLibs[service].js: (this.serviceBase + this.serviceLibs[service].js);
+						this.getScript(url, function() {
+							this_.fileLoader[url] = 2;
+							MJJS.loader.execute(url);
+						});
+					}
+				}
+			},
+			getScript: function(url, onSuccess, onError) {
+				this.fileLoader[url] = 1;
+				this.getRemoteScript(url, onSuccess, onError);
+			},
+			getRemoteScript: function(url, param, onSuccess, onError) {
+				if ($.isFunction(param)) {
+					onError = onSuccess;
+					onSuccess = param;
+					param = {};
+				}
+				var head = document.getElementsByTagName("head")[0];
+				var script = document.createElement("script");
+				script.type = 'text/javascript';
+				script.charset = 'utf-8';
+				script.src = url;
+				for (var item in param) {
+					if (item == 'keepScriptTag') {
+						script.keepScriptTag = true;
+					} else {
+						script.setAttribute(item, param[item]);
+					}
+				}
+				script.onload = script.onreadystatechange = function() {
+					if (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") {
+						if (onSuccess) onSuccess();
+						script.onload = script.onreadystatechange = null;
+						if (!script.keepScriptTag) head.removeChild(script);
+					}
+				};
+				script.onerror = function() {
+					if (onError) onError();
+				};
+				head.appendChild(script);
+			}
+		});
+	})();
+
+	/* MJJS.cookie */
+	(function() {
+		// ----------------------------
+		MJJS.namespace('MJJS.cookie');
+		$.extend(MJJS.cookie, {
+			getRootDomain: function() {
+				var d = document.domain;
+				if (d.indexOf('.') > 0 && !d.isIP()) {
+					var arr = d.split('.'),
+						len = arr.length,
+						d1 = arr[len - 1],
+						d2 = arr[len - 2],
+						d3 = arr[len - 3];
+					d = (d2 == 'com' || d2 == 'net') ? (d3 + '.' + d2 + '.' + d1) : (d2 + '.' + d1);
+				}
+				return d;
+			},
+			load: function() {
+				var tC = document.cookie.split('; ');
+				var tO = {};
+				var a = null;
+				for (var i = 0; i < tC.length; i++) {
+					a = tC[i].split('=');
+					tO[a[0]] = a[1];
+				}
+				return tO;
+			},
+			get: function(name) {
+				var value = this.load()[name];
+				if (value) {
+					try {
+						return decodeURI(value);
+					} catch(e) {
+						return unescape(value);
+					}
+				} else {
+					return false;
+				}
+			},
+			set: function(name, value, options) {
+				options = (typeof(options) == 'object') ? options: {
+					minute: options
+				};
+				var arg_len = arguments.length;
+				var path = (arg_len > 3) ? arguments[3] : (options.path || '/');
+				var domain = (arg_len > 4) ? arguments[4] : (options.domain || (options.root ? this.getRootDomain() : ''));
+				var exptime = 0;
+				if (options.day) {
+					exptime = 1000 * 60 * 60 * 24 * options.day;
+				} else if (options.hour) {
+					exptime = 1000 * 60 * 60 * options.hour;
+				} else if (options.minute) {
+					exptime = 1000 * 60 * options.minute;
+				} else if (options.second) {
+					exptime = 1000 * options.second;
+				}
+				var exp = new Date(),
+					expires = '';
+				if (exptime > 0) {
+					exp.setTime(exp.getTime() + exptime);
+					expires = '; expires=' + exp.toGMTString();
+				}
+				domain = (domain) ? ('; domain=' + domain) : '';
+				document.cookie = name + '=' + escape(value || '') + '; path=' + path + domain + expires;
+			},
+			del: function(name, options) {
+				options = options || {};
+				var path = '; path=' + (options.path || '/');
+				var domain = (options.domain) ? ('; domain=' + options.domain) : '';
+				if (options.root) domain = '; domain=' + this.getRootDomain();
+				document.cookie = name + '=' + path + domain + '; expires=Thu,01-Jan-70 00:00:01 GMT';
+			}
+		});
+	})();
+
+	/* MJJS.json */
+	(function() {
+		// ----------------------------
+		MJJS.namespace('MJJS.json');
+		$.extend(MJJS.json, {
+			parse: function(data) {
+				return (new Function("return " + data))();
+			},
+			stringify: function(obj) {
+				var m = {
+					'\b': '\\b',
+					'\t': '\\t',
+					'\n': '\\n',
+					'\f': '\\f',
+					'\r': '\\r',
+					'"': '\\"',
+					'\\': '\\\\'
+				};
+				var s = {
+					'array': function(x) {
+						var a = ['['],
+							b,
+							f,
+							i,
+							l = x.length,
+							v;
+						for (i = 0; i < l; i += 1) {
+							v = x[i];
+							f = s[typeof v];
+							if (f) {
+								v = f(v);
+								if (typeof(v) == 'string') {
+									if (b) {
+										a[a.length] = ',';
+									}
+									a[a.length] = v;
+									b = true;
+								}
+							}
+						}
+						a[a.length] = ']';
+						return a.join('');
+					},
+					'boolean': function(x) {
+						return String(x);
+					},
+					'null': function() {
+						return 'null';
+					},
+					'number': function(x) {
+						return isFinite(x) ? String(x) : 'null';
+					},
+					'object': function(x) {
+						if (x) {
+							if (x instanceof Array) {
+								return s.array(x);
+							}
+							var a = ['{'],
+								b,
+								f,
+								i,
+								v;
+							for (i in x) {
+								v = x[i];
+								f = s[typeof v];
+								if (f) {
+									v = f(v);
+									if (typeof(v) == 'string') {
+										if (b) {
+											a[a.length] = ',';
+										}
+										a.push(s.string(i), ':', v);
+										b = true;
+									}
+								}
+							}
+							a[a.length] = '}';
+							return a.join('');
+						}
+						return 'null';
+					},
+					'string': function(x) {
+						if (/["\\\x00-\x1f]/.test(x)) {
+							x = x.replace(/([\x00-\x1f\\"])/g, function(a, b) {
+								var c = m[b];
+								if (c) {
+									return c;
+								}
+								c = b.charCodeAt();
+								return '\\u00' + Math.floor(c / 16).toString(16) + (c % 16).toString(16);
+							});
+						}
+						return '\"' + x + '\"';
+					}
+				};
+				return s.object(obj);
+			}
+		});
+	})();
+
+	/* MJJS.page */
+	(function() {
+		// ----------------------------
+		MJJS.namespace('MJJS.page');
+		// ----------------------------
+		$.extend(MJJS.page, {
+			// ------------------------
+			// 设置主域(用于不同二级域下的数据访问)
+			setDomain: function() {
+				var d = document.domain;
+				if (d.indexOf('.') < 0 || d.isIP()) return;
+				var k = d.split('.'),
+					d1 = k[k.length - 1],
+					d2 = k[k.length - 2],
+					d3 = k[k.length - 3];
+				document.domain = (d2 == 'com' || d2 == 'net') ? (d3 + '.' + d2 + '.' + d1) : (d2 + '.' + d1);
+			},
+			// 模块展开闭合
+			collapsible: function(switchBtn, time) {
+				if (switchBtn) {
+					$('#wrapper').on('click', switchBtn, function() {
+						var el = $(this).parents('.panel').eq(0).children('.panel-body');
+						var downClass = 'fa-chevron-down';
+						var upClass   = 'fa-chevron-up';
+						var time = time || 200;
+						if ($(this).hasClass(downClass)) {
+							$(this).removeClass(downClass).addClass(upClass);
+							el.stop().slideDown(time);
+						} else {
+							$(this).removeClass(upClass).addClass(downClass);
+							el.stop().slideUp(time);
+						}
+					});
+				}
+			}
+		});
+		MJJS.namespace('MJJS.page.dialog');
+		MJJS.namespace('MJJS.page.toaster');
+		$.extend(MJJS.page.dialog, {
+			show: function(type, obj) {
+				var obj = type === 'textarea'? obj: type;
+				if (typeof(obj)==='object') {
+					MJJS.load(['dialog'], function() {
+						var _obj = {
+							buttons: [{
+								label: obj.btn_1_name || '确定',
+								cssClass: 'btn-info',
+								action: function(o) {
+									typeof(obj.confirm)==='function' && obj.confirm(dialog);
+								}
+							}, {
+								label: obj.btn_2_name || '取消',
+								action: function() {
+									typeof(obj.cancel)==='function' && obj.cancel();
+									dialog.close();
+								}
+							}],
+							onshown: function() {
+								typeof(obj.load)==='function' && obj.load(dialog);
+							}
+						};
+						if (type === 'textarea') {
+							_obj.message = function (dialog) {
+								var $content = $('<textarea class="form-control" placeholder="'+(obj.placeholder || '')+'"></textarea>');
+								return $content;
+							};
+							_obj.buttons[0].hotkey = 13;
+						} else {
+							_obj.message = function (dialog) {
+								var $content = $(obj.message);
+								return $content;
+							};
+						}
+						if (obj.title) _obj.title = obj.title;
+						var dialog = new BootstrapDialog.show(_obj);
+					});
+				}
+			},
+			alert: function(text, callback) {
+				MJJS.load(['dialog'], function() {
+					if (typeof(text)==='string') {
+						BootstrapDialog.alert({
+							title: '提示',
+							message: text,
+							type: BootstrapDialog.TYPE_WARNING,
+							callback: function() {
+								$.isFunction(callback) && callback();
+							}
+						});
+					} else if (typeof(text)==='object') {
+						BootstrapDialog.confirm(text);
+					}
+				});
+			},
+			confirm: function(text, confirm, cancel) {
+				MJJS.load(['dialog'], function() {
+					if (typeof(text)==='string') {
+						BootstrapDialog.confirm({
+							title: '请确认',
+							message: text,
+							type: BootstrapDialog.TYPE_WARNING,
+							btnOKClass: 'btn-warning',
+							callback: function(result) {
+								if (result) {
+									typeof(confirm)==='function' && confirm();
+								} else {
+									typeof(cancel)==='function' && cancel();
+								}
+							}
+						});
+					} else if (typeof(text)==='object') {
+						BootstrapDialog.confirm(text);
+					}
+				});
+			},
+			textarea: function(obj) {
+				this.show('textarea', obj);
+			}
+		});
+		$.extend(MJJS.page.toaster, {
+			init: function(type, message, opts) {
+				MJJS.load(['toaster'], function() {
+					var edit = function(name) {
+						_opts.settings.toaster.css[name] = '10px';
+					};
+					var posX = {
+						top: function(dir, pos) {
+							edit('top');
+						},
+						right: function(dir, pos) {
+							edit('right');
+						},
+						center: function(dir, pos) {
+							_opts.settings.toaster.css['left'] = '50%';
+							_opts.settings.toaster.css['margin-left'] = '-' + width/2 + 'px';
+						}
+					};
+					var posY = {
+						top: function(dir, pos) {
+							edit('top');
+						},
+						bottom: function(dir, pos) {
+							edit('bottom');
+						},
+						center: function(dir, pos) {
+							_opts.settings.toaster.css['top'] = '40%';
+							_opts.settings.toaster.css['-webkit-transform'] = 'translateY(-50%)';
+							_opts.settings.toaster.css['-moz-transform']    = 'translateY(-50%)';
+							_opts.settings.toaster.css['transform']         = 'translateY(-50%)';
+						}
+					};
+					var _opts = {
+						priority: type || 'success',
+						message: message
+					}
+					if (typeof(opts)==='object') {
+						opts.timeout = opts.timeout || 2000;
+						_opts.settings = opts;
+					} else {
+						_opts.settings = { timeout: 2000 };
+					}
+					var positionX = _opts.posX || 'center';
+					var positionY = _opts.posY || 'center';
+					var width     = _opts.width || 400;
+					_opts.settings.toaster = {
+						'id'        : 'toaster',
+						'container' : 'body',
+						'template'  : '<div></div>',
+						'class'     : 'toaster',
+						'css'       : {
+							'position' : 'fixed',
+							'width'    : width + 'px',
+							'zIndex'   : 50000
+						}
+					};
+					posX[positionX]();
+					posY[positionY]();
+					$.toaster(_opts);
+				});
+			},
+			dark: function(message, opts) {
+				this.init('dark', message, opts);
+			},
+			success: function(message, opts) {
+				this.init('success', message, opts);
+			},
+			info: function(message, opts) {
+				this.init('info', message, opts);
+			},
+			warning: function(message, opts) {
+				this.init('warning', message, opts);
+			},
+			danger: function(message, opts) {
+				this.init('danger', message, opts);
+			}
+		});
+		// ----------------------------
+		// 页面初始化处理
+		MJJS.page.init = function() {
+		};
+		$(function() {
+			MJJS.page.init();
+		});
+	})();
+
+	/* MJJS.form */
+	(function() {
+		// ----------------------------
+		MJJS.namespace('MJJS.form');
+		// ----------------------------
+		$.extend(MJJS.form, {
+			// ------------------------
+			// 表单验证
+			validator: function(parent, opts, evt) {
+				if (parent[0] !== '#' && $(parent).length === 1) return;
+				MJJS.load(['validator'], function() {
+					var success = $.isFunction(evt)? evt: evt.success;
+					var init = !$.isFunction(evt)? evt.init: '';
+					$(parent).bootstrapValidator({
+						trigger: 'blur',
+						fields: opts
+					})
+					.on('success.form.bv', function(e) {
+						success(e, $(parent).data('bootstrapValidator'));
+					});
+					$.isFunction(init) && init($(parent).data('bootstrapValidator'));
+				});
+			},
+			valid: {
+				init: function(callback) {
+					MJJS.load(['valid'], function() {
+						$.isFunction(callback) && callback();
+					});
+				}
+			},
+			geetest: function(parent, opts) {
+				if (parent[0] !== '#' && $(parent).length === 1) return;
+				MJJS.load(['geetest'], function() {
+					var validate = false;
+					var handler = function (captcha) {
+						captcha.appendTo('#' + parent);
+						captcha.onReady(function () {
+							$.isFunction(opts.load) && opts.load(captcha);
+						});
+						captcha.onRefresh(function() {
+							$.isFunction(opts.reload) && opts.reload(captcha);
+						})
+						captcha.onSuccess(function () {
+							validate = captcha.getValidate();
+							$.isFunction(opts.success) && opts.success(validate, captcha);
+						});
+					};
+					$.ajax({
+						url: '/mjad_gt?t=' + (new Date()).getTime(),
+						type: 'get',
+						success: function (data) {
+							initGeetest({
+								gt: data.gt,
+								//challenge: data.challenge,
+								product: 'float',
+								offline: !data.success
+							}, handler);
+						}
+					});
+				});
+			},
+			filter: function(parent, opts) {
+				if (typeof(parent)==='string'&&parent[0]==='#'&&$(parent).length===1&&opts) {
+					MJJS.load(['iFilter'], function() {
+						$(parent).iFilter(opts);
+					});
+				}
+			}
+		});
+		// ----------------------------
+		// 页面初始化处理
+		MJJS.form.init = function() {
+		};
+		$(function() {
+			MJJS.form.init();
+		});
+	})();
+
+	/* MJJS.UI */
+	(function() {
+		// ----------------------------
+		MJJS.namespace('MJJS.ui');
+		// ----------------------------
+		$.extend(MJJS.ui, {
+			// 对象合并
+			objMerge: function(obj1, obj2) {
+				for (var p in obj1) {
+					if (!obj2[p]) obj2[p] = obj1[p];
+				}
+				return obj2;
+			},
+			// 列表元素对象批量合并 依赖 objMerge 方法
+			optsEach: function(list, opts, defOpts, callback) {
+				$(list).each(function(i, e) {
+					var params = MJJS.json.parse($(e).attr('data-opts'));
+					var _opts;
+					var _defOpts  = typeof(defOpts) === 'object'? defOpts: undefined;
+					var _callback = typeof(defOpts) === 'function'? defOpts: callback;
+					if (params && opts) {
+						_opts = MJJS.ui.objMerge(opts, params);
+					} else {
+						_opts = opts || params || _defOpts;
+					}
+					if (typeof(_callback) === 'function') _callback(e, _opts);
+				});
+			},
+			// 表单美化
+			icheck: function(parent, color) {
+				MJJS.load(['icheck'], function() {
+					if (parent) {
+						var _color = 'square';
+						var col = {
+							red: true,
+							green: true,
+							blue: true,
+							yellow: true,
+							purple: true
+						}
+						if (color in col) _color = _color + '-' + color;
+						$(parent).iCheck({
+							checkboxClass: 'icheckbox_'+_color,
+							radioClass: 'iradio_'+_color,
+							increaseArea: '20%'
+						});
+					}
+				});
+			},
+			// iOS7样式开关
+			switchery: function(btn, opts) {
+				if (typeof(btn) === 'string') {
+					if (!opts) opts = {};
+					MJJS.load(['switchery'], function() {
+						MJJS.ui.optsEach(btn, opts, function(e, _opts) {
+							if ($(e).attr('data-switchery')) return;
+							var switchery = new Switchery(e, _opts);
+							if (typeof(_opts.load)==='function') _opts.load(switchery);
+							if (typeof(_opts.on)==='function' && typeof(_opts.off)==='function') {
+								$(e).on('change', function() {
+									var state = $(this)[0].checked;
+									return state? _opts.on(switchery): _opts.off(switchery);
+								});
+							}
+						});
+					});
+				}
+			},
+			// 计算
+			spinner: function(parent, opts) {
+				if (typeof(parent) === 'string') {
+					MJJS.load(['spinner'], function() {
+						MJJS.ui.optsEach(parent, opts, function(e, _opts) {
+							$(e).spinner(_opts);
+						});
+					});
+				}
+			},
+			// 文件上传
+			dropzone: function(parent, opts) {
+				if (typeof(parent)==='string'&&parent[0]==='#'&&$(parent).length===1&&opts) {
+					MJJS.load(['dropzone'], function() {
+						$(parent).dropzone(opts);
+					});
+				}
+			},
+			// 输入标签
+			tagsinput: function(parent, opts) {
+				if (typeof(parent) === 'string') {
+					if (!opts) opts = { defaultText: '添加标签' };
+					opts.defaultText = opts.defaultText || '添加标签';
+					MJJS.load(['tagsinput'], function() {
+						MJJS.ui.optsEach(parent, opts, function(e, _opts) {
+							$(e).tagsInput(_opts);
+						});
+					});
+				}
+			},
+			// 数据报表
+			datatable: function(parent, opts) {
+				MJJS.load(['mj_datatable'], function() {
+					MJJS.ui.custom.datatable(parent, opts);
+				});
+			},
+			iTable: function(parent, opts) {
+				if (typeof(parent)==='string'&&parent[0]==='#'&&$(parent).length===1&&opts) {
+					MJJS.load(['iTable'], function() {
+						$(parent).iTable(opts);
+					});
+				}
+			},
+			// 日期时间选择器
+			timepicker: function(parent, opts) {
+				if (typeof(parent) === 'string') {
+					MJJS.load(['timepicker'], function() {
+						MJJS.ui.optsEach(parent, opts, function(e, _opts) {
+							if (_opts && _opts.initialDate) {
+								var tagName = $(e).tagName();
+								if (tagName === 'input') {
+									$(e).val(_opts.initialDate);
+								} else {
+									$(e).find('input').val(_opts.initialDate);
+								}
+							}
+							$(e).datetimepicker(_opts).on('changeDate', function(ev) {
+								if (_opts && typeof(_opts.callback)==='function') _opts.callback(ev, $(e));
+							});
+						});
+					});
+				}
+			},
+			// 图表库
+			highcharts: function(parent, opts) {
+				if (typeof(parent)==='string'&&parent[0]==='#'&&$(parent).length===1&&opts) {
+					MJJS.load(['highcharts'], function() {
+						MJJS.ui.custom.highcharts(parent, opts);
+					});
+				}
+			},
+			// 地图
+			echarts: function(parent, opts) {
+				if (typeof(parent)==='string'&&parent[0]==='#'&&$(parent).length===1&&opts) {
+					MJJS.load(['echarts'], function() {
+						MJJS.ui.custom.echarts(parent, opts);
+					});
+				}
+			},
+			// 复制
+			clipboard: function(parent, opts) {
+				if (typeof(parent)==='string') {
+					MJJS.load(['clipboard'], function() {
+						var clipboard = new Clipboard(parent);
+						clipboard.on('success', function(e) {
+							typeof(opts.success) === 'function' && opts.success(e);
+						});
+						clipboard.on('error', function(e) {
+							typeof(opts.error) === 'function' && opts.error(e);
+						});
+					});
+				}
+			},
+			// 复制
+			slider: function(parent, opts) {
+				if (typeof(parent)==='string'&&parent[0]==='#'&& $(parent).length===1&&opts) {
+					MJJS.load(['slider'], function() {
+						$(parent).slider(opts);
+					});
+				}
+			}
+		});
+		// ----------------------------
+		// 页面初始化处理
+		MJJS.ui.init = function() {
+		};
+		$(function() {
+			MJJS.ui.init();
+		});
+	})();
+
+	/* MJJS.track */
+	(function() {
+		// ----------------------------
+		MJJS.namespace('MJJS.track');
+		$.extend(MJJS.track, {
+			// 自动设置相应js的访问源
+			scriptPath: (document.location.protocol=='https:') ? '//secure' : '//i0',
+			// 统计初始化，默认加载baidu/google
+			init: function(options) {
+				options = options || {
+					baidu: false,
+					google: false
+				};
+				if (options.baidu) this.baidu.init();
+				if (options.google) this.google.init();
+			},
+			// 页面JS文件加载
+			loadJS: function(url, isAsync) {
+				if (isAsync) {
+					MJJS.loader.getRemoteScript(url, { async:true, keepScriptTag:true });
+				} else {
+					document.write(unescape('%3Cscript type="text/javascript" src="'+ url +'"%3E%3C/script%3E')); 
+				}
+			},
+			baidu: {
+				// 百度uid key值
+				uid: '8912c189b15a314abfe42da6db4e5b97',
+				setUid: function(uid) {
+					this.uid = uid;
+				},
+				// 百度统计初始化, 异步加载时有问题不提交数据
+				init: function(uid) {
+					MJJS.track.loadJS('//hm.baidu.com/h.js%3F'+ (uid||this.uid));
+				}
+			},
+			google: {
+				uid: 'UA-50969958-1',
+				domain: 'ule.com',
+				setUid: function(uid) {
+					this.uid = uid;
+				},
+				setDomain: function(domain) {
+					this.domain = domain;
+				},
+				// google统计初始化
+				init: function(uid, domain) {
+					var url = MJJS.track.scriptPath + '.ule.com/googleana/analytics.js';
+					(function(i, s, o, g, r, a, m) {
+						i['GoogleAnalyticsObject'] = r;
+						i[r] = i[r] || function() { (i[r].q = i[r].q || []).push(arguments); }, i[r].l = 1*new Date();
+						a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+						a.async = 1;
+						a.src = g;
+						m.parentNode.insertBefore(a, m);
+					})(window, document, 'script', url, 'ga');
+					ga('create', uid||this.uid, domain||this.domain);
+					ga('require', 'displayfeatures');
+					ga('send', 'pageview');
+				},
+				// 发送自定义数据
+				send: function(hitType, data) {
+					window.ga && ga('send', hitType, data);
+				},
+				initEC: function() {
+					window.ga && ga('require', 'ecommerce', 'ecommerce.js');
+				},
+				sendEC: function(orderData, itemDatas) {
+					if (window.ga) {
+						// 暂时用tax字段来保存 cartType.payType信息
+						if (orderData.metric4 && orderData.metric5) {
+							if (!isNaN(orderData.metric4+'.'+orderData.metric5)) {
+								orderData.tax = orderData.metric4 +'.'+ orderData.metric5;
+							}
+						}
+						ga('ecommerce:addTransaction', orderData);
+						for (var i=0; i<itemDatas.length; i++) {
+							ga('ecommerce:addItem', itemDatas[i]);
+						}
+						ga('ecommerce:send');
+					}
+				}
+			}
+		});
+	})();
+
+	/* MJJS.template */
+	(function() {
+		// ----------------------------
+		MJJS.namespace('MJJS.template');
+		$.extend(MJJS.template, {
+			render: function(html, options) {
+				var re = /<%([^%>]+)?%>/g,
+					reExp = /(^( )?(r.push|var|if|for|else|switch|case|break|{|}))(.*)?/g,
+					code = 'var r=[];\n',
+					cursor = 0,
+					match;
+				var add = function(line, js) {
+					js? (code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n') :
+						(code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '');
+					return add;
+				}
+				while(match = re.exec(html)) {
+					add(html.slice(cursor, match.index))(match[1], true);
+					cursor = match.index + match[0].length;
+				}
+				add(html.substr(cursor, html.length - cursor));
+				code += 'return r.join("");';
+				// console.log(code);
+				return new Function(code.replace(/[\r\t\n]/g, '')).apply(options);
+			}
+		});
+	})();
+
+	/* MJJS init */
+	(function() {
+		var path = '/js/util/';
+		// ----------------------------
+		MJJS.load.add('icheck',       { js: path+'icheck/jquery.icheck.js', css: path+'icheck/skins/square/square.css' });
+		MJJS.load.add('underscore',   { js: path+'underscore.min.js' });
+		MJJS.load.add('switchery',    { js: path+'ios-switch/switchery.js', css: path+'ios-switch/switchery.css' });
+		MJJS.load.add('spinner',      { js: path+'spinner.js' });
+		MJJS.load.add('dropzone',     { js: path+'dropzone/dropzone.js', css: path+'dropzone/dropzone.css' });
+		MJJS.load.add('tagsinput',    { js: path+'jquery-tags-input/jquery.tagsinput.js', css: path+'jquery-tags-input/jquery.tagsinput.css' });
+		MJJS.load.add('datatable',    { js: path+'advanced-datatable/jquery.datatables.js', css: path+'advanced-datatable/css/jquery.datatables.css' });
+		MJJS.load.add('mj_datatable', { js: path+'custom/datatable.js', requires: 'datatable' });
+		MJJS.load.add('timepicker',   { js: path+'bootstrap-datetimepicker/js/bootstrap-datetimepicker.js', css: path+'bootstrap-datetimepicker/css/datetimepicker.css' });
+		MJJS.load.add('u-highcharts', { js: path+'highcharts.min.js' });
+		MJJS.load.add('highcharts',   { js: path+'custom/highcharts.js', requires: 'u-highcharts' });
+		MJJS.load.add('ui-echarts',   { js: path+'echarts/echarts.min.js' });
+		MJJS.load.add('echarts',      { js: path+'custom/echarts.js', requires: 'ui-echarts' });
+		MJJS.load.add('dialog',       { js: path+'bootstrap-dialog/bootstrap-dialog.min.js', css: path+'bootstrap-dialog/bootstrap-dialog.min.css' });
+		MJJS.load.add('toaster',      { js: path+'jquery.toaster.js' });
+		MJJS.load.add('validator',    { js: path+'bootstrap-validator/bootstrap-validator.js', css: path+'bootstrap-validator/bootstrap-validator.css' });
+		MJJS.load.add('valid',        { js: '/js/lib/valid.js' });
+		MJJS.load.add('clipboard',    { js: path+'clipboard/clipboard.min.js' });
+		MJJS.load.add('geetest',      { js: path+'geetest.js' });
+		MJJS.load.add('slider',       { js: path+'bootstrap-slider/bootstrap-slider.min.js', css: path+'bootstrap-slider/bootstrap-slider.min.css' });
+		MJJS.load.add('iFilter',      { js: path+'custom/iFilter.js' });
+		MJJS.load.add('iTable',       { js: path+'custom/iTable/iTable.js', css: path+'custom/iTable/iTable.css' });
+	})();
+
+	(function() {
+		MJJS.server = {
+			url: 'mj.weimob.com',
+			api: '/api/mjad/ssp'
+		}
+	})();
+
+})(jQuery, window);

@@ -1,0 +1,36 @@
+<div class="e-content">
+	{% for ele in element %}
+	<div class="e-form-block">
+		{% if ele.type === 'text' %}
+		<label class="e-form-label" style="{{style.label}}">{{ele.name || '文本框名称'}}{% if ele.must %}<b></b>{% endif %}</label>
+		<input class="e-form-input" maxlength="50" type="text" placeholder="请输入{{ele.name || '文本'}}" v-must="{{ele.must}}" v-rule="{{ele.check}}">
+		{% endif %}
+		{% if ele.type === 'select' %}
+		<label class="e-form-label" style="{{style.label}}">{{ele.name || '下拉框名称'}}</label>
+		<select class="e-form-select">
+			<option value="">请选择</option>
+			{% for opt in ele.options %}
+			<option value="{{opt.value}}">{{opt.value}}</option>
+			{% endfor %}
+		</select>
+		{% endif %}
+		{% if ele.type === 'radio' %}
+		<label class="e-form-label" style="{{style.label}}">{{ele.name || '筛选项名称'}}</label>
+		<div class="e-form-box">
+			{% if !ele.options.length %}
+			请添加选项
+			{% endif %}
+			{% set labelname = loop.index*2 %}
+			{% for opt in ele.options %}
+			<label>
+			<input class="e-form-input" type="radio" name="label_{{labelname}}" v-rule="{{ele.check}}" value="{{opt.value}}"{% if loop.first %} checked{% endif %}><span class="e-form-radiotxt" style="{{style.label}}">{{opt.value}}</span>
+			</label>
+			{% endfor %}
+		</div>
+		{% endif %}
+	</div>
+	{% endfor %}
+	<div class="e-form-block">
+		<a class="e-form-submit" style="{{style.submit}}" mj-a="7" t-success="{{basic[2].value || '提交成功!'}}" t-url="{{basic[3].value || ''}}" t-name="{{basic[0].value || '表单'}}">{{basic[1].value || '提交'}}</a>
+	</div>
+</div>

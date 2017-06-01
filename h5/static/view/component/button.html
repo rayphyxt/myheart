@@ -1,0 +1,81 @@
+<div class="fm-button" rid="{{id}}">
+	<div class="fm-title">按钮</div>
+	<ul class="fm-nav nav nav-pills nav-justified">
+		<li class="active"><a class="e-tabs" href="#eContent">组件内容</a></li>
+		<li><a class="e-tabs" href="#eStype">组件样式</a></li> 
+	</ul>
+
+	<div class="tab-content">
+		<!-- 组件内容 -->
+		<div class="tab-pane fade active in" id="eContent">
+			<div class="fm-row">
+				<div class="fm-labeltxt">按钮文字</div>
+				<div>
+					<input name="bname" type="text" class="fm-control" placeholder="15字以内" maxlength="15">
+				</div>
+			</div>
+			<div class="fm-row">
+				<div class="fm-labeltxt">添加链接</div>
+				<div class="row">
+					<div class="col-md-7">
+						<p style="padding: 6px 0;">跳转至本站页面：</p>
+					</div>
+					<div class="col-md-5">
+						<select name="blink" class="fm-control">
+							<option value="">不跳转</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="fm-row">
+				提示：<br />
+				1、按住shift鼠标拖动按钮边框进行等比例缩放<br />
+				<br />
+				2、为了更好匹配不同尺寸手机屏幕，请尽量不要在边缘处放置按钮元素。
+			</div>
+		</div>
+
+		<!-- 组件样式 -->
+		<div class="tab-pane fade" id="eStype">
+			<div class="row mb10">
+				<div class="font flat" title="按钮字体颜色">
+					<i class="iconfont icon-word-colour"></i>
+					<div id="ftcolor"></div>
+				</div>
+				<div class="font flat" title="按钮背景颜色">
+					<i class="iconfont icon-background-color"></i>
+					<div id="bgfill"></div>
+				</div>
+				<div class="font flat" title="按钮边框颜色">
+					<i class="iconfont icon-border-color"></i>
+					<div id="bdcolor"></div>
+				</div>
+			</div>
+			<div class="fm-row">
+				<div class="fm-labeltxt">按钮跳转生效区域：</div>
+				<div>
+					<select name="bzoom" class="fm-control">
+						<option value="0">仅按钮</option>
+						<option value="1">2倍</option>
+						<option value="2">3倍</option>
+						<option value="3">4倍</option>
+						<option value="4">5倍</option>
+						<option value="5">6倍</option>
+						<option value="6">7倍</option>
+						<option value="7">8倍</option>
+						<option value="8">9倍</option>
+						<option value="9">10倍</option>
+					</select>
+				</div>
+			</div>
+			<div class="fm-row">
+				<div class="fm-labeltxt">是否悬浮：</div>
+				<div>
+					<label class="radio-inline"><input type="radio" name="bfix" value="1">是</label>
+					<label class="radio-inline"><input type="radio" name="bfix" value="0" checked>否</label>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>

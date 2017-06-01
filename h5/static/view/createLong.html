@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta content="yes" name="apple-mobile-web-app-capable">
+		<meta content="yes" name="apple-touch-fullscreen">
+		<meta content="telephone=no,email=no" name="format-detection">
+		<meta name="App-Config" content="fullscreen=yes,useHistoryState=yes,transition=yes">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<meta name="renderer" content="webkit">
+		<title>创建长页站点</title>
+		<link rel="shortcut icon" href="../img/cas.png" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<link href="http://cdn.bootcss.com/bootstrap3-dialog/1.35.4/css/bootstrap-dialog.css" rel="stylesheet">
+		<link rel="stylesheet" href="../font/iconfont.css" />
+		<link rel="stylesheet" href="../css/jquery-ui.css">
+		<link rel="stylesheet" href="../css/spectrum.css" />
+		<link rel="stylesheet" href="../css/drag.css" />
+	</head>
+	<body>
+		<div class="toolbar">
+			<div class="row">
+				<div class="col-md-3">
+					<input type="text" id="webName" class="form-control" placeholder="请输入此站点名称" maxlength="12" />
+				</div>
+				<div class="col-md-3">
+					<div class="valid right">
+						<div class="rit-icon"><i class="iconfont icon-nike"></i></div>
+						<!-- 站点名称可以使用 -->
+					</div>
+					<div class="valid empty">
+						<div class="err-icon"><i class="iconfont icon-close-2"></i></div>
+						请输入H5名称
+					</div>
+					<div class="valid used">
+						<div class="err-icon"><i class="iconfont icon-close-2"></i></div>
+						站点名称已被使用
+					</div>
+				</div>
+				<div class="col-md-6 text-right">
+					<a title="保存" id="save" class="operation"><i class="iconfont icon-save"></i></a>
+					<a title="预览" id="preview" class="operation"><i class="iconfont icon-preview"></i></a>
+					<a title="发布" id="publish" class="operation"><i class="iconfont icon-publish"></i></a>
+					<a title="翻页站点" class="operation" href="./create.html"><i class="iconfont icon-return"></i></a>
+				</div>
+			</div>
+		</div>
+		<div class="drag">
+			<div class="compt">
+				<div class="menu-list">
+					<ul class="sub-menu-list">
+						<li title="背景">
+							<div class="butn" data-type="background" data-content=""><i class="iconfont icon-background"></i></div>
+						</li>
+						<li title="文本">
+							<div class="butn" data-type="text" data-content="这里编辑文字"><i class="iconfont icon-word"></i></div>
+						</li>
+						<li title="图片">
+							<div class="butn" data-type="img" data-content=""><i class="iconfont icon-photo"></i></div>
+						</li>
+						<li title="组图">
+							<div class="butn" data-type="img_group" data-content=""><i class="iconfont icon-photos"></i></div>
+						</li>
+						<li title="按钮">
+							<div class="butn" data-type="button" data-content="这里编辑按钮文字"><i class="iconfont icon-button"></i></div>
+						</li>
+						<li title="表单">
+							<div class="butn" data-type="form" data-content=""><i class="iconfont icon-menu"></i></div>
+						</li>
+						<li title="电话">
+							<div class="butn" data-type="tel" data-content="这里编辑按钮文字"><i class="iconfont icon-telephone"></i></div>
+						</li>
+						<li title="下载">
+							<div class="butn" data-type="link" data-content="这里编辑按钮文字"><i class="iconfont icon-download"></i></div>
+						</li>
+						<li title="电商表单">
+							<div class="butn" data-type="ebform" data-content="这里编辑文字"><i class="iconfont icon-e-business"></i></div>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="viewlist">
+				<div class="page-height">
+					<span>页面高度</span>
+					<select class="form-control" id="pageHeight">
+						<option value="1">1屏（972）</option>
+						<option value="2">2屏（1944）</option>
+						<option value="3">3屏（2916）</option>
+						<option value="4">4屏（3888）</option>
+						<option value="5">5屏（4860）</option>
+						<option value="6">6屏（5832）</option>
+						<option value="7">7屏（6804）</option>
+						<option value="8">8屏（7776）</option>
+						<option value="9">9屏（8748）</option>
+						<option value="10">10屏（9720）</option>
+					</select>
+				</div>
+				<ul class="vl">
+					<li class="prePage active" index="0">
+						<div class="p-page"></div>
+					</li>
+				</ul>
+			</div>
+			<div class="page-block">
+				<div id="page">
+					<section class="page active long" index="0"></section>
+				</div>
+			</div>
+			<div id="form" class="form"></div>
+		</div>
+		<!-- 预览层 -->
+		<div class="cover">
+			<div class="pageview">
+				<div class="page_show"></div>
+			</div>
+			<div class="closer">
+				<i class="iconfont icon-close"></i>
+			</div>
+		</div>
+		<!-- loading -->
+		<div class="loading">
+			<div class="loader"></div>
+		</div>
+
+		<script src="../js/lib/jquery.js"></script>
+		<script src="../js/lib/bootstrap.js"></script>
+		<script src="../js/lib/MJJS.js"></script>
+		<script src="../js/lib/common.js"></script>
+		<script src="http://cdn.bootcss.com/bootstrap3-dialog/1.35.4/js/bootstrap-dialog.js"></script>
+		<script src="../js/lib/jquery-ui.min.js"></script>
+		<script src="../js/lib/jquery.ui.rotatable.js"></script>
+		<script src="../js/lib/removable.js"></script>
+		<script src="../js/lib/maparea.js"></script>
+		<script src="../js/lib/posHandler.js"></script>
+		<script src="../js/lib/jAlert.js"></script>
+		<script src="../js/lib/swig.min.js"></script>
+		<script src="../js/lib/spectrum.js"></script>
+		<script src="../js/eventDelegation.js"></script>
+		<script>
+			var isLong = true;
+		</script>
+		<script src="../js/createPage.js"></script>
+	</body>
+</html>

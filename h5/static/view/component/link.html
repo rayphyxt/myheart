@@ -1,0 +1,85 @@
+<div class="fm-link" rid="{{id}}">
+	<div class="fm-title">下载按钮</div>
+
+	<ul class="fm-nav nav nav-pills nav-justified">
+		<li class="active"><a class="e-tabs" href="#eContent">组件内容</a></li>
+		<li><a class="e-tabs" href="#eStype">组件样式</a></li> 
+	</ul>
+
+	<div class="tab-content clearfix">
+		<!-- 组件内容 -->
+		<div class="tab-pane fade active in" id="eContent">
+
+			<div class="fm-row">
+				<div class="fm-labeltxt">按钮文字<b></b></div>
+				<div>
+					<input name="lname" type="text" class="fm-control" maxlength="15">
+				</div>
+			</div>
+			<div class="fm-row">
+				<div class="fm-labeltxt">添加下载链接：<b></b></div>
+				<div class="fm-labeltxt">IOS：</div>
+				<div>
+					<input name="lios" type="text" class="fm-control" maxlength="20" placeholder="请填写苹果商店 APP ID" />
+				</div>
+			</div>
+			<div class="fm-row">
+				<div class="fm-labeltxt">Android：</div>
+				<div>
+					<input name="landroid" type="text" class="fm-control" placeholder="请填写下载地址" />
+				</div>
+			</div>
+			<div class="fm-row">
+				提示：<br />
+				1、iOS下载地址请填写苹果商店APP ID。<br />
+				2、Android下载地址请直接填写下载地址。<br />
+				3、填写的下载地址必须以http://或https://开头，否则将无法跳转下载。<br />
+				4、按住shift鼠标拖动按钮边框进行等比例缩放<br />
+				5、为了更好匹配不同尺寸手机屏幕，请尽量不要在边缘处放置按钮元素。
+			</div>
+		</div>
+
+		<!-- 组件样式 -->
+		<div class="tab-pane fade" id="eStype">
+			<div class="row mb10">
+				<div class="font flat" title="按钮文字颜色">
+					<i class="iconfont icon-word-colour"></i>
+					<div id="ftcolor"></div>
+				</div>
+				<div class="font flat" title="按钮背景颜色">
+					<i class="iconfont icon-background-color"></i>
+					<div id="bgfill"></div>
+				</div>
+				<div class="font flat" title="按钮边框颜色">
+					<i class="iconfont icon-border-color"></i>
+					<div id="bdcolor"></div>
+				</div>
+			</div>
+			<div class="fm-row">
+				<div class="fm-labeltxt">按钮跳转生效区域：</div>
+				<div>
+					<select name="lzoom" class="fm-control">
+						<option value="0">仅按钮</option>
+						<option value="1">2倍</option>
+						<option value="2">3倍</option>
+						<option value="3">4倍</option>
+						<option value="4">5倍</option>
+						<option value="5">6倍</option>
+						<option value="6">7倍</option>
+						<option value="7">8倍</option>
+						<option value="8">9倍</option>
+						<option value="9">10倍</option>
+					</select>
+				</div>
+			</div>
+			<div class="fm-row">
+				<div class="fm-labeltxt">是否悬浮：</div>
+				<div>
+					<label class="radio-inline"><input type="radio" name="lfix" value="1">是</label>
+					<label class="radio-inline"><input type="radio" name="lfix" value="0" checked>否</label>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>

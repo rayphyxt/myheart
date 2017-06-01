@@ -1,0 +1,979 @@
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #2da5ff;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+body {
+  height: 100%;
+  font-size: 14px;
+  background-color: #f0f1f3;
+}
+footer {
+  margin-top: -1px;
+  padding-top: 60px;
+  border-top: 1px solid #bfbfbf;
+  background-color: #e5e5e5;
+}
+/* common */
+.main-content {
+  background-color: #f0f1f3;
+}
+.wrapper {
+  padding: 0;
+}
+[v-cloak] {
+  display: none;
+}
+.mb10 {
+  margin-bottom: 10px;
+}
+.toolbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  padding: 8px 25px;
+  background-color: #f7f7f7;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+}
+.toolbar .operation {
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  color: #ccc;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.toolbar .operation .iconfont {
+  font-size: 30px;
+}
+.toolbar .operation:hover {
+  color: #9fd5f8;
+}
+.toolbar .valid {
+  display: none;
+  color: #ff5533;
+  font-size: 16px;
+}
+.toolbar .valid .rit-icon,
+.toolbar .valid .err-icon {
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+  vertical-align: middle;
+}
+.toolbar .valid .rit-icon .iconfont,
+.toolbar .valid .err-icon .iconfont {
+  font-size: 20px;
+}
+.toolbar .valid.right {
+  color: #68d183;
+}
+.toolbar .valid.right .iconfont {
+  font-size: 30px;
+}
+.drag {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 51px);
+  top: 51px;
+  min-height: 550px;
+}
+/* 组件菜单 */
+.compt {
+  position: absolute;
+  left: 630px;
+  top: 40px;
+  bottom: 0;
+  overflow: hidden;
+  outline: none;
+}
+.menu-list {
+  list-style: none;
+  margin: 0;
+}
+.menu-list .sub-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 10px 0;
+  overflow: hidden;
+}
+.menu-list .sub-menu-list > li {
+  margin-bottom: 10px;
+  text-align: center;
+}
+.menu-list .sub-menu-list > li .butn {
+  width: 42px;
+  height: 42px;
+  line-height: 42px;
+  color: #fff;
+  background-color: #b0b1b2;
+  border-radius: 0 8px 8px 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background-color ease 0.2s;
+}
+.menu-list .sub-menu-list > li .butn .iconfont {
+  font-size: 24px;
+}
+.menu-list .sub-menu-list > li .butn:hover,
+.menu-list .sub-menu-list > li .butn.active {
+  background-color: #000;
+}
+.viewlist {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 185px;
+  padding: 30px 35px;
+  border-right: 1px solid #bfbfbf;
+  background-color: #e5e5e5;
+  overflow-x: visible;
+  overflow-y: auto;
+}
+.viewlist .vl {
+  padding: 0;
+}
+.viewlist .vl li.prePage {
+  position: relative;
+  display: block;
+  height: 174px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  box-shadow: 0 0 0px rgba(0, 0, 0, 0);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+.viewlist .vl li.prePage .p-page {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.viewlist .vl li.prePage .p-page .p-view {
+  position: relative;
+  width: 320px;
+  height: 486px;
+  overflow: hidden;
+  pointer-events: none;
+  transform-origin: left top;
+  transform: scale(0.35, 0.35);
+}
+.viewlist .vl li.prePage .page-close,
+.viewlist .vl li.prePage .page-add {
+  position: absolute;
+  text-align: center;
+  color: #000;
+  visibility: hidden;
+  opacity: 0;
+  -webkit-transition: all .25s ease;
+  transition: all 0.25s ease;
+}
+.viewlist .vl li.prePage .page-close {
+  right: -8px;
+  top: -8px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+}
+.viewlist .vl li.prePage .page-close .iconfont {
+  font-size: 14px;
+}
+.viewlist .vl li.prePage .page-add {
+  bottom: -18px;
+  left: 50%;
+  margin-left: -12.5px;
+  width: 25px;
+  height: 25px;
+}
+.viewlist .vl li.prePage .page-add .iconfont {
+  font-size: 25px;
+}
+.viewlist .vl li.prePage:hover .page-close {
+  visibility: visible;
+  opacity: 1;
+  right: 0;
+  top: 0;
+}
+.viewlist .vl li.prePage:hover .page-add {
+  visibility: visible;
+  opacity: 1;
+  bottom: -12px;
+}
+.viewlist .vl li.prePage:hover,
+.viewlist .vl li.prePage.active {
+  border: 1px solid #ddd;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+/* 拖拽区域 */
+.page-block {
+  position: relative;
+  z-index: 1;
+  width: 320px;
+  height: 486px;
+  overflow: hidden;
+  top: 30px;
+  margin-left: 310px;
+  background-color: #fff;
+  box-shadow: 0px 0px 20px 0 #666;
+}
+#page {
+  width: 390px;
+  height: 486px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.page {
+  display: none;
+  position: relative;
+  z-index: 1;
+  width: 320px;
+  height: 486px;
+  overflow: hidden;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+.page.active {
+  display: block;
+  z-index: 2;
+}
+.page.save {
+  display: block;
+  box-shadow: none;
+}
+.page.save .ui-rotatable-handle,
+.page.save .ui-resizable-handle {
+  display: none;
+}
+.drag-container {
+  position: absolute;
+  z-index: 1;
+}
+.drag-container .input-background,
+.drag-container .input-text,
+.drag-container .input-img,
+.drag-container .input-img_group,
+.drag-container .input-button,
+.drag-container .input-form,
+.drag-container .input-tel,
+.drag-container .input-link,
+.drag-container .input-ebform {
+  position: relative;
+  font-size: 14px;
+  cursor: move;
+}
+.drag-container .input-background .zoom,
+.drag-container .input-text .zoom,
+.drag-container .input-img .zoom,
+.drag-container .input-img_group .zoom,
+.drag-container .input-button .zoom,
+.drag-container .input-form .zoom,
+.drag-container .input-tel .zoom,
+.drag-container .input-link .zoom,
+.drag-container .input-ebform .zoom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: -1;
+  background-color: rgba(71, 180, 248, 0.5);
+  pointer-events: none;
+  -webkit-transition: all .25s ease;
+  transition: all .25s ease;
+}
+.drag-container .input-background:hover,
+.drag-container .input-text:hover,
+.drag-container .input-img:hover,
+.drag-container .input-img_group:hover,
+.drag-container .input-button:hover,
+.drag-container .input-form:hover,
+.drag-container .input-tel:hover,
+.drag-container .input-link:hover,
+.drag-container .input-ebform:hover {
+  outline: 1px solid #47b4f8;
+}
+.drag-container.active .input-background,
+.drag-container.active .input-text,
+.drag-container.active .input-img,
+.drag-container.active .input-img_group,
+.drag-container.active .input-button,
+.drag-container.active .input-form,
+.drag-container.active .input-tel,
+.drag-container.active .input-link,
+.drag-container.active .input-ebform {
+  outline: 1px solid #ff5533;
+}
+.drag-container.active .input-background .zoom,
+.drag-container.active .input-text .zoom,
+.drag-container.active .input-img .zoom,
+.drag-container.active .input-img_group .zoom,
+.drag-container.active .input-button .zoom,
+.drag-container.active .input-form .zoom,
+.drag-container.active .input-tel .zoom,
+.drag-container.active .input-link .zoom,
+.drag-container.active .input-ebform .zoom {
+  background-color: rgba(255, 85, 57, 0.5);
+}
+.drag-container.active .ui-rotatable-handle {
+  display: block;
+}
+.drag-container:hover .delbox {
+  opacity: .9;
+}
+.input-text {
+  width: 300px;
+}
+.input-text .text {
+  width: auto;
+  min-height: 30px;
+  line-height: 1.3;
+  font-size: 14px;
+  padding: 5px;
+  word-break: break-all;
+}
+.input-img .img {
+  width: 100%;
+  height: 100%;
+}
+.input-img_group {
+  background: url(../img/default.jpg) center no-repeat;
+  background-size: 100% 100%;
+}
+.input-img_group .img {
+  width: 100%;
+  height: 100%;
+}
+.input-button {
+  width: 150px;
+  min-height: 30px;
+  display: table;
+}
+.input-button .button {
+  display: table-cell;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  border: 1px solid transparent;
+  background-color: #47b4f8;
+  outline: 0;
+  text-align: center;
+  vertical-align: middle;
+  text-decoration: none;
+  word-break: break-all;
+  padding: 5px;
+}
+.input-tel {
+  width: 150px;
+  min-height: 30px;
+  display: table;
+}
+.input-tel .tel {
+  display: table-cell;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  border: 1px solid transparent;
+  background-color: #47b4f8;
+  outline: 0;
+  text-align: center;
+  vertical-align: middle;
+  text-decoration: none;
+  word-break: break-all;
+  padding: 5px;
+}
+.input-tel .phone {
+  display: block;
+  width: 55px;
+  height: 55px;
+  line-height: 55px;
+  color: #47b4f8;
+  text-decoration: none;
+}
+.input-tel .phone .iconfont {
+  font-size: 55px;
+}
+.input-link {
+  width: 150px;
+  min-height: 30px;
+  display: table;
+}
+.input-link .link {
+  display: table-cell;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  border: 1px solid transparent;
+  background-color: #47b4f8;
+  outline: 0;
+  text-align: center;
+  vertical-align: middle;
+  text-decoration: none;
+  word-break: break-all;
+  padding: 5px;
+}
+/* 电商|表单公共样式 */
+.input-form,
+.input-ebform {
+  width: 320px;
+  min-height: 34px;
+}
+.input-form .e-content,
+.input-ebform .e-content {
+  padding: 20px 30px;
+}
+.input-form .e-content .e-form-block,
+.input-ebform .e-content .e-form-block {
+  text-align: center;
+}
+.input-form .e-content .e-form-block:nth-last-child(2),
+.input-ebform .e-content .e-form-block:nth-last-child(2) {
+  margin-bottom: 15px;
+}
+.input-form .e-form-block,
+.input-ebform .e-form-block {
+  overflow: hidden;
+}
+.input-form .e-form-block input,
+.input-ebform .e-form-block input,
+.input-form .e-form-block select,
+.input-ebform .e-form-block select {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+}
+.input-form .e-form-block input[type=radio],
+.input-ebform .e-form-block input[type=radio],
+.input-form .e-form-block select[type=radio],
+.input-ebform .e-form-block select[type=radio] {
+  display: inline-block;
+  width: auto;
+  height: auto;
+  vertical-align: -2px;
+  margin-right: 5px;
+}
+.input-form .e-form-label,
+.input-ebform .e-form-label {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 0;
+  margin-bottom: 0;
+  text-align: left;
+}
+.input-form .e-form-label b,
+.input-ebform .e-form-label b {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 4px;
+  vertical-align: middle;
+  border-radius: 100%;
+  background-color: red;
+}
+.input-form .e-form-input,
+.input-ebform .e-form-input,
+.input-form .e-form-select,
+.input-ebform .e-form-select {
+  width: 70%;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  border: 1px solid #ccc;
+}
+.input-form .e-form-box,
+.input-ebform .e-form-box {
+  font-size: 14px;
+  text-align: left;
+  padding: 0 0 6px 12px;
+}
+.input-form .e-form-box label,
+.input-ebform .e-form-box label {
+  margin-right: 10px;
+}
+.input-form .e-form-submit,
+.input-ebform .e-form-submit {
+  display: block;
+  width: 100%;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  padding: 6px 12px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.42857143;
+  border-radius: 4px;
+  background-color: #47b4f8;
+  user-select: none;
+}
+/* 表单单独样式 */
+/* 电商表单单独样式 */
+.input-ebform .e-form-block input.e-form-input {
+  padding-left: 5px;
+}
+.input-ebform .e-form-block input.e-num {
+  width: 50%;
+}
+.input-ebform .e-form-block label.e-form-label {
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+}
+.input-ebform .e-form-block .e-form-wl {
+  width: 32%;
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+  padding: 0 0 0 15px;
+  white-space: nowrap;
+}
+.input-ebform .e-form-block .e-form-wr {
+  width: 66%;
+  text-align: left;
+  font-size: 14px;
+  padding: 0 15px;
+}
+.input-ebform .e-form-block .e-form-gt {
+  float: left;
+  position: relative;
+  min-height: 1px;
+}
+.input-ebform .e-form-block .e-form-row {
+  margin-left: -15px;
+  margin-right: -15px;
+  height: 34px;
+  line-height: 34px;
+}
+.input-ebform .e-form-block span.e-form-price,
+.input-ebform .e-form-block span.e-form-total {
+  padding-right: 3px;
+}
+/* 右侧定制菜单 */
+.form {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 300px;
+  padding: 30px 25px;
+  font-size: 14px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #e5e5e5;
+  border-left: 1px solid #bfbfbf;
+}
+.form .fm-nav {
+  border-radius: 4px;
+  overflow: hidden;
+}
+.form .fm-nav li a {
+  border-radius: 0;
+  padding: 7px 15px;
+  font-size: 16px;
+}
+.form .fm-nav li a,
+.form .fm-nav li a:hover,
+.form .fm-nav li a:focus {
+  background-color: #bdc3c7;
+}
+.form .fm-nav li.active a {
+  border-radius: 0;
+}
+.form .fm-nav li.active a,
+.form .fm-nav li.active a:hover,
+.form .fm-nav li.active a:focus {
+  background-color: #47b4f8;
+}
+.form select {
+  padding: 0;
+}
+.form .bgcolor {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  border-radius: 8px;
+  background-color: #000;
+  cursor: pointer;
+}
+.form .bgcolor .iconfont {
+  color: #fff;
+  font-size: 24px;
+}
+.form .font {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  color: #2e2e2e;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.form .font .iconfont {
+  font-size: 24px;
+}
+.form .font:hover {
+  color: #e5e5e5;
+  background-color: #2e2e2e;
+}
+.form .sp-flat {
+  min-width: 145px;
+  position: relative;
+  z-index: 1;
+}
+.form .sp-flat .sp-choose,
+.form .sp-flat .sp-cancel {
+  font-family: inherit;
+}
+.form .sp-flat .sp-cancel {
+  display: none;
+}
+.form .fm-row {
+  margin: 0 -15px 20px -15px;
+  overflow: hidden;
+}
+.form .fm-block,
+.form .fm-control {
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  border-radius: 0;
+  border: 0;
+  color: #555;
+  background-color: #fff;
+}
+.form textarea.fm-control {
+  height: auto;
+}
+.form .fm-block {
+  margin-top: 10px;
+}
+.form .fm-block:first-child {
+  margin-top: 0;
+}
+.form .fm-block .fm-control {
+  border: 1px solid #bdc3c7;
+}
+.form .fm-block .form-input {
+  margin-bottom: 10px;
+}
+.form .fm-block .form-input .fm-control {
+  margin-top: 5px;
+}
+.form .fm-block .form-input .fm-control:first-child {
+  margin-top: 0;
+}
+.form .fm-control {
+  height: 34px;
+}
+.form .fm-labeltxt {
+  margin-bottom: 4px;
+}
+.form .fm-labeltxt b {
+  display: inline-block;
+}
+.form .fm-labeltxt b::after {
+  content: '';
+  float: left;
+  width: 4px;
+  height: 4px;
+  display: inline-block;
+  margin-top: -7px;
+  margin-left: 4px;
+  border-radius: 100%;
+  background-color: red;
+}
+.form .txtfz {
+  width: 65px;
+}
+.form .txta {
+  margin-top: 10px;
+}
+.form .fm-background .editImg,
+.form .fm-img .editImg,
+.form .fm-img_group .editImg {
+  height: 200px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  background-color: #fff;
+}
+.form .fm-background .btn-file,
+.form .fm-img .btn-file,
+.form .fm-img_group .btn-file {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+.form .fm-background .btn-file [type=file],
+.form .fm-img .btn-file [type=file],
+.form .fm-img_group .btn-file [type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 200px;
+  opacity: 0;
+  cursor: pointer;
+}
+.form .fm-background .editImgBlock {
+  background-color: #fff;
+}
+.form .fm-background .editImg {
+  width: 132px;
+  margin: 0 auto;
+  background-size: cover;
+}
+.tab-content {
+  padding-top: 20px;
+}
+.tab-content .fm-block i {
+  font-size: 20px;
+}
+.tab-content .fm-block .btn-form-remove,
+.tab-content .fm-block .btn-form-sel-remove {
+  color: red;
+}
+.tab-content .fm-block .btn-form-up,
+.tab-content .fm-block .btn-form-down,
+.tab-content .fm-block .btn-form-sel-add {
+  color: green;
+  font-weight: bold;
+}
+.bolder {
+  font-weight: bold;
+}
+.italic {
+  font-style: italic;
+}
+.underline {
+  text-decoration: underline;
+}
+.ui-rotatable-handle {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: -30px;
+  width: 11px;
+  height: 11px;
+  background-color: #47b4f8;
+  background-size: 100%;
+  border-radius: 50%;
+  margin-left: -5px;
+  margin-top: -5px;
+  cursor: pointer;
+}
+.ui-rotatable-handle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1px;
+  height: 30px;
+  background-color: #47b4f8;
+  margin-left: -1px;
+  margin-top: -1px;
+}
+.cover {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  overflow: auto;
+}
+.cover .pageview {
+  position: relative;
+  z-index: 1;
+  width: 320px;
+  height: auto;
+  margin: auto;
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+.cover .closer {
+  position: absolute;
+  right: 25px;
+  top: 25px;
+  z-index: 1;
+  cursor: pointer;
+}
+.cover .closer .iconfont {
+  color: #fff;
+  font-size: 50px;
+}
+.page_show {
+  position: relative;
+  width: 320px;
+  height: 486px;
+  background-color: #fff;
+  overflow-y: auto;
+}
+.page_show .page {
+  margin-left: 0;
+}
+.page_show .drag-container .input-background,
+.p-page .drag-container .input-background,
+.page_show .drag-container .input-text,
+.p-page .drag-container .input-text,
+.page_show .drag-container .input-img,
+.p-page .drag-container .input-img,
+.page_show .drag-container .input-img_group,
+.p-page .drag-container .input-img_group,
+.page_show .drag-container .input-button,
+.p-page .drag-container .input-button,
+.page_show .drag-container .input-form,
+.p-page .drag-container .input-form,
+.page_show .drag-container .input-tel,
+.p-page .drag-container .input-tel,
+.page_show .drag-container .input-link,
+.p-page .drag-container .input-link,
+.page_show .drag-container .input-ebform,
+.p-page .drag-container .input-ebform {
+  outline: 0;
+  cursor: auto;
+}
+.page_show .drag-container .input-background .zoom,
+.p-page .drag-container .input-background .zoom,
+.page_show .drag-container .input-text .zoom,
+.p-page .drag-container .input-text .zoom,
+.page_show .drag-container .input-img .zoom,
+.p-page .drag-container .input-img .zoom,
+.page_show .drag-container .input-img_group .zoom,
+.p-page .drag-container .input-img_group .zoom,
+.page_show .drag-container .input-button .zoom,
+.p-page .drag-container .input-button .zoom,
+.page_show .drag-container .input-form .zoom,
+.p-page .drag-container .input-form .zoom,
+.page_show .drag-container .input-tel .zoom,
+.p-page .drag-container .input-tel .zoom,
+.page_show .drag-container .input-link .zoom,
+.p-page .drag-container .input-link .zoom,
+.page_show .drag-container .input-ebform .zoom,
+.p-page .drag-container .input-ebform .zoom {
+  background-color: transparent;
+}
+.ui-resizable {
+  position: absolute;
+}
+.delbox {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #fa4647;
+  border-radius: 100%;
+  opacity: 0;
+}
+.delbox .iconfont {
+  color: #fff;
+  font-size: 14px;
+}
+.fm-title {
+  display: block;
+  height: 30px;
+  margin-bottom: 10px;
+  color: #2e2e2e;
+  font-size: 16px;
+  text-align: center;
+  border-bottom: 1px solid #2e2e2e;
+}
+.fm-img_group .look_img {
+  width: 136px;
+  height: 68px;
+  margin-top: 10px;
+}
+.fm-img_group img,
+.img_group img {
+  width: 100%;
+  height: 100%;
+}
+.img_group {
+  width: 320px;
+  height: 160px;
+  overflow: hidden;
+}
+.img_group .swiper-wrapper {
+  width: 100%;
+  height: 100%;
+}
+.col-md-4 {
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+}
+.e-form-block {
+  margin-bottom: 10px;
+}
+.e-form-input {
+  padding-left: 6px;
+}
+/* 页面高度 */
+.page-height {
+  margin-bottom: 20px;
+}
+.page-height span {
+  line-height: 20px;
+}
+.help-line {
+  position: absolute;
+  top: 70px;
+  left: 330px;
+  z-index: 1;
+  width: 280px;
+  height: 406px;
+  border: 2px dashed rgba(60, 60, 60, 0.8);
+  pointer-events: none;
+}
+.posHandler {
+  position: absolute;
+  left: 500px;
+  top: 500px;
+  z-index: 2;
+}
+.posHandler ul {
+  min-width: 100px;
+  padding: 0;
+  box-shadow: 0 0 10px #aaa;
+  background-color: #fff;
+}
+.posHandler ul li {
+  height: 30px;
+  line-height: 30px;
+  font-size: 12px;
+  text-indent: 10px;
+  cursor: pointer;
+}
+.posHandler ul li:hover {
+  background-color: #ccc;
+}
+
+/*# sourceMappingURL=drag.css.map */
